@@ -46,12 +46,16 @@ class Player
         static const std::string _Name;
         static const std::string _Race;
         static const std::string _Class;
+        static const std::string _ArmorClass;
         static const std::string _Str;
         static const std::string _Con;
         static const std::string _Dex;
         static const std::string _Int;
         static const std::string _Wis;
         static const std::string _Cha;
+        static const std::string _Fortitude;
+        static const std::string _Reflex;
+        static const std::string _Will;
         static const std::string _RolledHp;
         static const std::string _Xp;
         static const std::string _Load;
@@ -144,6 +148,14 @@ class Player
     void setClass(std::string &&pClass) noexcept;
     void setClassToNull() noexcept;
 
+    /**  For column ArmorClass  */
+    ///Get the value of the column ArmorClass, returns the default value if the column is null
+    const int16_t &getValueOfArmorclass() const noexcept;
+    ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
+    const std::shared_ptr<int16_t> &getArmorclass() const noexcept;
+    ///Set the value of the column ArmorClass
+    void setArmorclass(const int16_t &pArmorclass) noexcept;
+
     /**  For column Str  */
     ///Get the value of the column Str, returns the default value if the column is null
     const int16_t &getValueOfStr() const noexcept;
@@ -192,6 +204,30 @@ class Player
     ///Set the value of the column Cha
     void setCha(const int16_t &pCha) noexcept;
 
+    /**  For column Fortitude  */
+    ///Get the value of the column Fortitude, returns the default value if the column is null
+    const int16_t &getValueOfFortitude() const noexcept;
+    ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
+    const std::shared_ptr<int16_t> &getFortitude() const noexcept;
+    ///Set the value of the column Fortitude
+    void setFortitude(const int16_t &pFortitude) noexcept;
+
+    /**  For column Reflex  */
+    ///Get the value of the column Reflex, returns the default value if the column is null
+    const int16_t &getValueOfReflex() const noexcept;
+    ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
+    const std::shared_ptr<int16_t> &getReflex() const noexcept;
+    ///Set the value of the column Reflex
+    void setReflex(const int16_t &pReflex) noexcept;
+
+    /**  For column Will  */
+    ///Get the value of the column Will, returns the default value if the column is null
+    const int16_t &getValueOfWill() const noexcept;
+    ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
+    const std::shared_ptr<int16_t> &getWill() const noexcept;
+    ///Set the value of the column Will
+    void setWill(const int16_t &pWill) noexcept;
+
     /**  For column RolledHp  */
     ///Get the value of the column RolledHp, returns the default value if the column is null
     const int16_t &getValueOfRolledhp() const noexcept;
@@ -217,7 +253,7 @@ class Player
     void setLoad(const int16_t &pLoad) noexcept;
 
 
-    static size_t getColumnNumber() noexcept {  return 13;  }
+    static size_t getColumnNumber() noexcept {  return 17;  }
     static const std::string &getColumnName(size_t index) noexcept(false);
 
     Json::Value toJson() const;
@@ -238,12 +274,16 @@ class Player
     std::shared_ptr<std::string> name_;
     std::shared_ptr<std::string> race_;
     std::shared_ptr<std::string> class_;
+    std::shared_ptr<int16_t> armorclass_;
     std::shared_ptr<int16_t> str_;
     std::shared_ptr<int16_t> con_;
     std::shared_ptr<int16_t> dex_;
     std::shared_ptr<int16_t> int_;
     std::shared_ptr<int16_t> wis_;
     std::shared_ptr<int16_t> cha_;
+    std::shared_ptr<int16_t> fortitude_;
+    std::shared_ptr<int16_t> reflex_;
+    std::shared_ptr<int16_t> will_;
     std::shared_ptr<int16_t> rolledhp_;
     std::shared_ptr<int32_t> xp_;
     std::shared_ptr<int16_t> load_;
@@ -258,7 +298,7 @@ class Player
         const bool notNull_;
     };
     static const std::vector<MetaData> metaData_;
-    bool dirtyFlag_[13]={ false };
+    bool dirtyFlag_[17]={ false };
   public:
     static const std::string &sqlForFindingByPrimaryKey()
     {
@@ -293,55 +333,79 @@ class Player
             sql += "Class,";
             ++parametersCount;
         }
-        sql += "Str,";
+        sql += "ArmorClass,";
         ++parametersCount;
         if(!dirtyFlag_[4])
         {
             needSelection=true;
         }
-        sql += "Con,";
+        sql += "Str,";
         ++parametersCount;
         if(!dirtyFlag_[5])
         {
             needSelection=true;
         }
-        sql += "Dex,";
+        sql += "Con,";
         ++parametersCount;
         if(!dirtyFlag_[6])
         {
             needSelection=true;
         }
-        sql += "Int,";
+        sql += "Dex,";
         ++parametersCount;
         if(!dirtyFlag_[7])
         {
             needSelection=true;
         }
-        sql += "Wis,";
+        sql += "Int,";
         ++parametersCount;
         if(!dirtyFlag_[8])
         {
             needSelection=true;
         }
-        sql += "Cha,";
+        sql += "Wis,";
         ++parametersCount;
         if(!dirtyFlag_[9])
         {
             needSelection=true;
         }
-        sql += "RolledHp,";
+        sql += "Cha,";
         ++parametersCount;
         if(!dirtyFlag_[10])
         {
             needSelection=true;
         }
-        sql += "Xp,";
+        sql += "Fortitude,";
         ++parametersCount;
         if(!dirtyFlag_[11])
         {
             needSelection=true;
         }
-        if(dirtyFlag_[12])
+        sql += "Reflex,";
+        ++parametersCount;
+        if(!dirtyFlag_[12])
+        {
+            needSelection=true;
+        }
+        sql += "Will,";
+        ++parametersCount;
+        if(!dirtyFlag_[13])
+        {
+            needSelection=true;
+        }
+        sql += "RolledHp,";
+        ++parametersCount;
+        if(!dirtyFlag_[14])
+        {
+            needSelection=true;
+        }
+        sql += "Xp,";
+        ++parametersCount;
+        if(!dirtyFlag_[15])
+        {
+            needSelection=true;
+        }
+        if(dirtyFlag_[16])
         {
             sql += "Load,";
             ++parametersCount;
@@ -444,6 +508,42 @@ class Player
             sql +="default,";
         }
         if(dirtyFlag_[12])
+        {
+            sql.append("?,");
+
+        }
+        else
+        {
+            sql +="default,";
+        }
+        if(dirtyFlag_[13])
+        {
+            sql.append("?,");
+
+        }
+        else
+        {
+            sql +="default,";
+        }
+        if(dirtyFlag_[14])
+        {
+            sql.append("?,");
+
+        }
+        else
+        {
+            sql +="default,";
+        }
+        if(dirtyFlag_[15])
+        {
+            sql.append("?,");
+
+        }
+        else
+        {
+            sql +="default,";
+        }
+        if(dirtyFlag_[16])
         {
             sql.append("?,");
 

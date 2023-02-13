@@ -17,12 +17,16 @@ const std::string Player::Cols::_Id = "Id";
 const std::string Player::Cols::_Name = "Name";
 const std::string Player::Cols::_Race = "Race";
 const std::string Player::Cols::_Class = "Class";
+const std::string Player::Cols::_ArmorClass = "ArmorClass";
 const std::string Player::Cols::_Str = "Str";
 const std::string Player::Cols::_Con = "Con";
 const std::string Player::Cols::_Dex = "Dex";
 const std::string Player::Cols::_Int = "Int";
 const std::string Player::Cols::_Wis = "Wis";
 const std::string Player::Cols::_Cha = "Cha";
+const std::string Player::Cols::_Fortitude = "Fortitude";
+const std::string Player::Cols::_Reflex = "Reflex";
+const std::string Player::Cols::_Will = "Will";
 const std::string Player::Cols::_RolledHp = "RolledHp";
 const std::string Player::Cols::_Xp = "Xp";
 const std::string Player::Cols::_Load = "Load";
@@ -35,12 +39,16 @@ const std::vector<typename Player::MetaData> Player::metaData_={
 {"Name","std::string","varchar(100)",100,0,0,0},
 {"Race","std::string","varchar(100)",100,0,0,0},
 {"Class","std::string","varchar(100)",100,0,0,0},
+{"ArmorClass","int16_t","smallint(6)",2,0,0,1},
 {"Str","int16_t","smallint(6)",2,0,0,1},
 {"Con","int16_t","smallint(6)",2,0,0,1},
 {"Dex","int16_t","smallint(6)",2,0,0,1},
 {"Int","int16_t","smallint(6)",2,0,0,1},
 {"Wis","int16_t","smallint(6)",2,0,0,1},
 {"Cha","int16_t","smallint(6)",2,0,0,1},
+{"Fortitude","int16_t","smallint(6)",2,0,0,1},
+{"Reflex","int16_t","smallint(6)",2,0,0,1},
+{"Will","int16_t","smallint(6)",2,0,0,1},
 {"RolledHp","int16_t","smallint(6)",2,0,0,1},
 {"Xp","int32_t","int(11)",4,0,0,1},
 {"Load","int16_t","smallint(6)",2,0,0,1}
@@ -70,6 +78,10 @@ Player::Player(const Row &r, const ssize_t indexOffset) noexcept
         {
             class_=std::make_shared<std::string>(r["Class"].as<std::string>());
         }
+        if(!r["ArmorClass"].isNull())
+        {
+            armorclass_=std::make_shared<int16_t>(r["ArmorClass"].as<int16_t>());
+        }
         if(!r["Str"].isNull())
         {
             str_=std::make_shared<int16_t>(r["Str"].as<int16_t>());
@@ -94,6 +106,18 @@ Player::Player(const Row &r, const ssize_t indexOffset) noexcept
         {
             cha_=std::make_shared<int16_t>(r["Cha"].as<int16_t>());
         }
+        if(!r["Fortitude"].isNull())
+        {
+            fortitude_=std::make_shared<int16_t>(r["Fortitude"].as<int16_t>());
+        }
+        if(!r["Reflex"].isNull())
+        {
+            reflex_=std::make_shared<int16_t>(r["Reflex"].as<int16_t>());
+        }
+        if(!r["Will"].isNull())
+        {
+            will_=std::make_shared<int16_t>(r["Will"].as<int16_t>());
+        }
         if(!r["RolledHp"].isNull())
         {
             rolledhp_=std::make_shared<int16_t>(r["RolledHp"].as<int16_t>());
@@ -110,7 +134,7 @@ Player::Player(const Row &r, const ssize_t indexOffset) noexcept
     else
     {
         size_t offset = (size_t)indexOffset;
-        if(offset + 13 > r.size())
+        if(offset + 17 > r.size())
         {
             LOG_FATAL << "Invalid SQL result for this model";
             return;
@@ -139,44 +163,64 @@ Player::Player(const Row &r, const ssize_t indexOffset) noexcept
         index = offset + 4;
         if(!r[index].isNull())
         {
-            str_=std::make_shared<int16_t>(r[index].as<int16_t>());
+            armorclass_=std::make_shared<int16_t>(r[index].as<int16_t>());
         }
         index = offset + 5;
         if(!r[index].isNull())
         {
-            con_=std::make_shared<int16_t>(r[index].as<int16_t>());
+            str_=std::make_shared<int16_t>(r[index].as<int16_t>());
         }
         index = offset + 6;
         if(!r[index].isNull())
         {
-            dex_=std::make_shared<int16_t>(r[index].as<int16_t>());
+            con_=std::make_shared<int16_t>(r[index].as<int16_t>());
         }
         index = offset + 7;
         if(!r[index].isNull())
         {
-            int_=std::make_shared<int16_t>(r[index].as<int16_t>());
+            dex_=std::make_shared<int16_t>(r[index].as<int16_t>());
         }
         index = offset + 8;
         if(!r[index].isNull())
         {
-            wis_=std::make_shared<int16_t>(r[index].as<int16_t>());
+            int_=std::make_shared<int16_t>(r[index].as<int16_t>());
         }
         index = offset + 9;
         if(!r[index].isNull())
         {
-            cha_=std::make_shared<int16_t>(r[index].as<int16_t>());
+            wis_=std::make_shared<int16_t>(r[index].as<int16_t>());
         }
         index = offset + 10;
         if(!r[index].isNull())
         {
-            rolledhp_=std::make_shared<int16_t>(r[index].as<int16_t>());
+            cha_=std::make_shared<int16_t>(r[index].as<int16_t>());
         }
         index = offset + 11;
         if(!r[index].isNull())
         {
-            xp_=std::make_shared<int32_t>(r[index].as<int32_t>());
+            fortitude_=std::make_shared<int16_t>(r[index].as<int16_t>());
         }
         index = offset + 12;
+        if(!r[index].isNull())
+        {
+            reflex_=std::make_shared<int16_t>(r[index].as<int16_t>());
+        }
+        index = offset + 13;
+        if(!r[index].isNull())
+        {
+            will_=std::make_shared<int16_t>(r[index].as<int16_t>());
+        }
+        index = offset + 14;
+        if(!r[index].isNull())
+        {
+            rolledhp_=std::make_shared<int16_t>(r[index].as<int16_t>());
+        }
+        index = offset + 15;
+        if(!r[index].isNull())
+        {
+            xp_=std::make_shared<int32_t>(r[index].as<int32_t>());
+        }
+        index = offset + 16;
         if(!r[index].isNull())
         {
             load_=std::make_shared<int16_t>(r[index].as<int16_t>());
@@ -187,7 +231,7 @@ Player::Player(const Row &r, const ssize_t indexOffset) noexcept
 
 Player::Player(const Json::Value &pJson, const std::vector<std::string> &pMasqueradingVector) noexcept(false)
 {
-    if(pMasqueradingVector.size() != 13)
+    if(pMasqueradingVector.size() != 17)
     {
         LOG_ERROR << "Bad masquerading vector";
         return;
@@ -229,7 +273,7 @@ Player::Player(const Json::Value &pJson, const std::vector<std::string> &pMasque
         dirtyFlag_[4] = true;
         if(!pJson[pMasqueradingVector[4]].isNull())
         {
-            str_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[4]].asInt64());
+            armorclass_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[4]].asInt64());
         }
     }
     if(!pMasqueradingVector[5].empty() && pJson.isMember(pMasqueradingVector[5]))
@@ -237,7 +281,7 @@ Player::Player(const Json::Value &pJson, const std::vector<std::string> &pMasque
         dirtyFlag_[5] = true;
         if(!pJson[pMasqueradingVector[5]].isNull())
         {
-            con_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[5]].asInt64());
+            str_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[5]].asInt64());
         }
     }
     if(!pMasqueradingVector[6].empty() && pJson.isMember(pMasqueradingVector[6]))
@@ -245,7 +289,7 @@ Player::Player(const Json::Value &pJson, const std::vector<std::string> &pMasque
         dirtyFlag_[6] = true;
         if(!pJson[pMasqueradingVector[6]].isNull())
         {
-            dex_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[6]].asInt64());
+            con_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[6]].asInt64());
         }
     }
     if(!pMasqueradingVector[7].empty() && pJson.isMember(pMasqueradingVector[7]))
@@ -253,7 +297,7 @@ Player::Player(const Json::Value &pJson, const std::vector<std::string> &pMasque
         dirtyFlag_[7] = true;
         if(!pJson[pMasqueradingVector[7]].isNull())
         {
-            int_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[7]].asInt64());
+            dex_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[7]].asInt64());
         }
     }
     if(!pMasqueradingVector[8].empty() && pJson.isMember(pMasqueradingVector[8]))
@@ -261,7 +305,7 @@ Player::Player(const Json::Value &pJson, const std::vector<std::string> &pMasque
         dirtyFlag_[8] = true;
         if(!pJson[pMasqueradingVector[8]].isNull())
         {
-            wis_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[8]].asInt64());
+            int_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[8]].asInt64());
         }
     }
     if(!pMasqueradingVector[9].empty() && pJson.isMember(pMasqueradingVector[9]))
@@ -269,7 +313,7 @@ Player::Player(const Json::Value &pJson, const std::vector<std::string> &pMasque
         dirtyFlag_[9] = true;
         if(!pJson[pMasqueradingVector[9]].isNull())
         {
-            cha_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[9]].asInt64());
+            wis_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[9]].asInt64());
         }
     }
     if(!pMasqueradingVector[10].empty() && pJson.isMember(pMasqueradingVector[10]))
@@ -277,7 +321,7 @@ Player::Player(const Json::Value &pJson, const std::vector<std::string> &pMasque
         dirtyFlag_[10] = true;
         if(!pJson[pMasqueradingVector[10]].isNull())
         {
-            rolledhp_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[10]].asInt64());
+            cha_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[10]].asInt64());
         }
     }
     if(!pMasqueradingVector[11].empty() && pJson.isMember(pMasqueradingVector[11]))
@@ -285,7 +329,7 @@ Player::Player(const Json::Value &pJson, const std::vector<std::string> &pMasque
         dirtyFlag_[11] = true;
         if(!pJson[pMasqueradingVector[11]].isNull())
         {
-            xp_=std::make_shared<int32_t>((int32_t)pJson[pMasqueradingVector[11]].asInt64());
+            fortitude_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[11]].asInt64());
         }
     }
     if(!pMasqueradingVector[12].empty() && pJson.isMember(pMasqueradingVector[12]))
@@ -293,7 +337,39 @@ Player::Player(const Json::Value &pJson, const std::vector<std::string> &pMasque
         dirtyFlag_[12] = true;
         if(!pJson[pMasqueradingVector[12]].isNull())
         {
-            load_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[12]].asInt64());
+            reflex_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[12]].asInt64());
+        }
+    }
+    if(!pMasqueradingVector[13].empty() && pJson.isMember(pMasqueradingVector[13]))
+    {
+        dirtyFlag_[13] = true;
+        if(!pJson[pMasqueradingVector[13]].isNull())
+        {
+            will_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[13]].asInt64());
+        }
+    }
+    if(!pMasqueradingVector[14].empty() && pJson.isMember(pMasqueradingVector[14]))
+    {
+        dirtyFlag_[14] = true;
+        if(!pJson[pMasqueradingVector[14]].isNull())
+        {
+            rolledhp_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[14]].asInt64());
+        }
+    }
+    if(!pMasqueradingVector[15].empty() && pJson.isMember(pMasqueradingVector[15]))
+    {
+        dirtyFlag_[15] = true;
+        if(!pJson[pMasqueradingVector[15]].isNull())
+        {
+            xp_=std::make_shared<int32_t>((int32_t)pJson[pMasqueradingVector[15]].asInt64());
+        }
+    }
+    if(!pMasqueradingVector[16].empty() && pJson.isMember(pMasqueradingVector[16]))
+    {
+        dirtyFlag_[16] = true;
+        if(!pJson[pMasqueradingVector[16]].isNull())
+        {
+            load_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[16]].asInt64());
         }
     }
 }
@@ -332,9 +408,17 @@ Player::Player(const Json::Value &pJson) noexcept(false)
             class_=std::make_shared<std::string>(pJson["Class"].asString());
         }
     }
-    if(pJson.isMember("Str"))
+    if(pJson.isMember("ArmorClass"))
     {
         dirtyFlag_[4]=true;
+        if(!pJson["ArmorClass"].isNull())
+        {
+            armorclass_=std::make_shared<int16_t>((int16_t)pJson["ArmorClass"].asInt64());
+        }
+    }
+    if(pJson.isMember("Str"))
+    {
+        dirtyFlag_[5]=true;
         if(!pJson["Str"].isNull())
         {
             str_=std::make_shared<int16_t>((int16_t)pJson["Str"].asInt64());
@@ -342,7 +426,7 @@ Player::Player(const Json::Value &pJson) noexcept(false)
     }
     if(pJson.isMember("Con"))
     {
-        dirtyFlag_[5]=true;
+        dirtyFlag_[6]=true;
         if(!pJson["Con"].isNull())
         {
             con_=std::make_shared<int16_t>((int16_t)pJson["Con"].asInt64());
@@ -350,7 +434,7 @@ Player::Player(const Json::Value &pJson) noexcept(false)
     }
     if(pJson.isMember("Dex"))
     {
-        dirtyFlag_[6]=true;
+        dirtyFlag_[7]=true;
         if(!pJson["Dex"].isNull())
         {
             dex_=std::make_shared<int16_t>((int16_t)pJson["Dex"].asInt64());
@@ -358,7 +442,7 @@ Player::Player(const Json::Value &pJson) noexcept(false)
     }
     if(pJson.isMember("Int"))
     {
-        dirtyFlag_[7]=true;
+        dirtyFlag_[8]=true;
         if(!pJson["Int"].isNull())
         {
             int_=std::make_shared<int16_t>((int16_t)pJson["Int"].asInt64());
@@ -366,7 +450,7 @@ Player::Player(const Json::Value &pJson) noexcept(false)
     }
     if(pJson.isMember("Wis"))
     {
-        dirtyFlag_[8]=true;
+        dirtyFlag_[9]=true;
         if(!pJson["Wis"].isNull())
         {
             wis_=std::make_shared<int16_t>((int16_t)pJson["Wis"].asInt64());
@@ -374,15 +458,39 @@ Player::Player(const Json::Value &pJson) noexcept(false)
     }
     if(pJson.isMember("Cha"))
     {
-        dirtyFlag_[9]=true;
+        dirtyFlag_[10]=true;
         if(!pJson["Cha"].isNull())
         {
             cha_=std::make_shared<int16_t>((int16_t)pJson["Cha"].asInt64());
         }
     }
+    if(pJson.isMember("Fortitude"))
+    {
+        dirtyFlag_[11]=true;
+        if(!pJson["Fortitude"].isNull())
+        {
+            fortitude_=std::make_shared<int16_t>((int16_t)pJson["Fortitude"].asInt64());
+        }
+    }
+    if(pJson.isMember("Reflex"))
+    {
+        dirtyFlag_[12]=true;
+        if(!pJson["Reflex"].isNull())
+        {
+            reflex_=std::make_shared<int16_t>((int16_t)pJson["Reflex"].asInt64());
+        }
+    }
+    if(pJson.isMember("Will"))
+    {
+        dirtyFlag_[13]=true;
+        if(!pJson["Will"].isNull())
+        {
+            will_=std::make_shared<int16_t>((int16_t)pJson["Will"].asInt64());
+        }
+    }
     if(pJson.isMember("RolledHp"))
     {
-        dirtyFlag_[10]=true;
+        dirtyFlag_[14]=true;
         if(!pJson["RolledHp"].isNull())
         {
             rolledhp_=std::make_shared<int16_t>((int16_t)pJson["RolledHp"].asInt64());
@@ -390,7 +498,7 @@ Player::Player(const Json::Value &pJson) noexcept(false)
     }
     if(pJson.isMember("Xp"))
     {
-        dirtyFlag_[11]=true;
+        dirtyFlag_[15]=true;
         if(!pJson["Xp"].isNull())
         {
             xp_=std::make_shared<int32_t>((int32_t)pJson["Xp"].asInt64());
@@ -398,7 +506,7 @@ Player::Player(const Json::Value &pJson) noexcept(false)
     }
     if(pJson.isMember("Load"))
     {
-        dirtyFlag_[12]=true;
+        dirtyFlag_[16]=true;
         if(!pJson["Load"].isNull())
         {
             load_=std::make_shared<int16_t>((int16_t)pJson["Load"].asInt64());
@@ -409,7 +517,7 @@ Player::Player(const Json::Value &pJson) noexcept(false)
 void Player::updateByMasqueradedJson(const Json::Value &pJson,
                                             const std::vector<std::string> &pMasqueradingVector) noexcept(false)
 {
-    if(pMasqueradingVector.size() != 13)
+    if(pMasqueradingVector.size() != 17)
     {
         LOG_ERROR << "Bad masquerading vector";
         return;
@@ -450,7 +558,7 @@ void Player::updateByMasqueradedJson(const Json::Value &pJson,
         dirtyFlag_[4] = true;
         if(!pJson[pMasqueradingVector[4]].isNull())
         {
-            str_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[4]].asInt64());
+            armorclass_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[4]].asInt64());
         }
     }
     if(!pMasqueradingVector[5].empty() && pJson.isMember(pMasqueradingVector[5]))
@@ -458,7 +566,7 @@ void Player::updateByMasqueradedJson(const Json::Value &pJson,
         dirtyFlag_[5] = true;
         if(!pJson[pMasqueradingVector[5]].isNull())
         {
-            con_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[5]].asInt64());
+            str_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[5]].asInt64());
         }
     }
     if(!pMasqueradingVector[6].empty() && pJson.isMember(pMasqueradingVector[6]))
@@ -466,7 +574,7 @@ void Player::updateByMasqueradedJson(const Json::Value &pJson,
         dirtyFlag_[6] = true;
         if(!pJson[pMasqueradingVector[6]].isNull())
         {
-            dex_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[6]].asInt64());
+            con_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[6]].asInt64());
         }
     }
     if(!pMasqueradingVector[7].empty() && pJson.isMember(pMasqueradingVector[7]))
@@ -474,7 +582,7 @@ void Player::updateByMasqueradedJson(const Json::Value &pJson,
         dirtyFlag_[7] = true;
         if(!pJson[pMasqueradingVector[7]].isNull())
         {
-            int_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[7]].asInt64());
+            dex_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[7]].asInt64());
         }
     }
     if(!pMasqueradingVector[8].empty() && pJson.isMember(pMasqueradingVector[8]))
@@ -482,7 +590,7 @@ void Player::updateByMasqueradedJson(const Json::Value &pJson,
         dirtyFlag_[8] = true;
         if(!pJson[pMasqueradingVector[8]].isNull())
         {
-            wis_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[8]].asInt64());
+            int_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[8]].asInt64());
         }
     }
     if(!pMasqueradingVector[9].empty() && pJson.isMember(pMasqueradingVector[9]))
@@ -490,7 +598,7 @@ void Player::updateByMasqueradedJson(const Json::Value &pJson,
         dirtyFlag_[9] = true;
         if(!pJson[pMasqueradingVector[9]].isNull())
         {
-            cha_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[9]].asInt64());
+            wis_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[9]].asInt64());
         }
     }
     if(!pMasqueradingVector[10].empty() && pJson.isMember(pMasqueradingVector[10]))
@@ -498,7 +606,7 @@ void Player::updateByMasqueradedJson(const Json::Value &pJson,
         dirtyFlag_[10] = true;
         if(!pJson[pMasqueradingVector[10]].isNull())
         {
-            rolledhp_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[10]].asInt64());
+            cha_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[10]].asInt64());
         }
     }
     if(!pMasqueradingVector[11].empty() && pJson.isMember(pMasqueradingVector[11]))
@@ -506,7 +614,7 @@ void Player::updateByMasqueradedJson(const Json::Value &pJson,
         dirtyFlag_[11] = true;
         if(!pJson[pMasqueradingVector[11]].isNull())
         {
-            xp_=std::make_shared<int32_t>((int32_t)pJson[pMasqueradingVector[11]].asInt64());
+            fortitude_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[11]].asInt64());
         }
     }
     if(!pMasqueradingVector[12].empty() && pJson.isMember(pMasqueradingVector[12]))
@@ -514,7 +622,39 @@ void Player::updateByMasqueradedJson(const Json::Value &pJson,
         dirtyFlag_[12] = true;
         if(!pJson[pMasqueradingVector[12]].isNull())
         {
-            load_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[12]].asInt64());
+            reflex_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[12]].asInt64());
+        }
+    }
+    if(!pMasqueradingVector[13].empty() && pJson.isMember(pMasqueradingVector[13]))
+    {
+        dirtyFlag_[13] = true;
+        if(!pJson[pMasqueradingVector[13]].isNull())
+        {
+            will_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[13]].asInt64());
+        }
+    }
+    if(!pMasqueradingVector[14].empty() && pJson.isMember(pMasqueradingVector[14]))
+    {
+        dirtyFlag_[14] = true;
+        if(!pJson[pMasqueradingVector[14]].isNull())
+        {
+            rolledhp_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[14]].asInt64());
+        }
+    }
+    if(!pMasqueradingVector[15].empty() && pJson.isMember(pMasqueradingVector[15]))
+    {
+        dirtyFlag_[15] = true;
+        if(!pJson[pMasqueradingVector[15]].isNull())
+        {
+            xp_=std::make_shared<int32_t>((int32_t)pJson[pMasqueradingVector[15]].asInt64());
+        }
+    }
+    if(!pMasqueradingVector[16].empty() && pJson.isMember(pMasqueradingVector[16]))
+    {
+        dirtyFlag_[16] = true;
+        if(!pJson[pMasqueradingVector[16]].isNull())
+        {
+            load_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[16]].asInt64());
         }
     }
 }
@@ -552,9 +692,17 @@ void Player::updateByJson(const Json::Value &pJson) noexcept(false)
             class_=std::make_shared<std::string>(pJson["Class"].asString());
         }
     }
-    if(pJson.isMember("Str"))
+    if(pJson.isMember("ArmorClass"))
     {
         dirtyFlag_[4] = true;
+        if(!pJson["ArmorClass"].isNull())
+        {
+            armorclass_=std::make_shared<int16_t>((int16_t)pJson["ArmorClass"].asInt64());
+        }
+    }
+    if(pJson.isMember("Str"))
+    {
+        dirtyFlag_[5] = true;
         if(!pJson["Str"].isNull())
         {
             str_=std::make_shared<int16_t>((int16_t)pJson["Str"].asInt64());
@@ -562,7 +710,7 @@ void Player::updateByJson(const Json::Value &pJson) noexcept(false)
     }
     if(pJson.isMember("Con"))
     {
-        dirtyFlag_[5] = true;
+        dirtyFlag_[6] = true;
         if(!pJson["Con"].isNull())
         {
             con_=std::make_shared<int16_t>((int16_t)pJson["Con"].asInt64());
@@ -570,7 +718,7 @@ void Player::updateByJson(const Json::Value &pJson) noexcept(false)
     }
     if(pJson.isMember("Dex"))
     {
-        dirtyFlag_[6] = true;
+        dirtyFlag_[7] = true;
         if(!pJson["Dex"].isNull())
         {
             dex_=std::make_shared<int16_t>((int16_t)pJson["Dex"].asInt64());
@@ -578,7 +726,7 @@ void Player::updateByJson(const Json::Value &pJson) noexcept(false)
     }
     if(pJson.isMember("Int"))
     {
-        dirtyFlag_[7] = true;
+        dirtyFlag_[8] = true;
         if(!pJson["Int"].isNull())
         {
             int_=std::make_shared<int16_t>((int16_t)pJson["Int"].asInt64());
@@ -586,7 +734,7 @@ void Player::updateByJson(const Json::Value &pJson) noexcept(false)
     }
     if(pJson.isMember("Wis"))
     {
-        dirtyFlag_[8] = true;
+        dirtyFlag_[9] = true;
         if(!pJson["Wis"].isNull())
         {
             wis_=std::make_shared<int16_t>((int16_t)pJson["Wis"].asInt64());
@@ -594,15 +742,39 @@ void Player::updateByJson(const Json::Value &pJson) noexcept(false)
     }
     if(pJson.isMember("Cha"))
     {
-        dirtyFlag_[9] = true;
+        dirtyFlag_[10] = true;
         if(!pJson["Cha"].isNull())
         {
             cha_=std::make_shared<int16_t>((int16_t)pJson["Cha"].asInt64());
         }
     }
+    if(pJson.isMember("Fortitude"))
+    {
+        dirtyFlag_[11] = true;
+        if(!pJson["Fortitude"].isNull())
+        {
+            fortitude_=std::make_shared<int16_t>((int16_t)pJson["Fortitude"].asInt64());
+        }
+    }
+    if(pJson.isMember("Reflex"))
+    {
+        dirtyFlag_[12] = true;
+        if(!pJson["Reflex"].isNull())
+        {
+            reflex_=std::make_shared<int16_t>((int16_t)pJson["Reflex"].asInt64());
+        }
+    }
+    if(pJson.isMember("Will"))
+    {
+        dirtyFlag_[13] = true;
+        if(!pJson["Will"].isNull())
+        {
+            will_=std::make_shared<int16_t>((int16_t)pJson["Will"].asInt64());
+        }
+    }
     if(pJson.isMember("RolledHp"))
     {
-        dirtyFlag_[10] = true;
+        dirtyFlag_[14] = true;
         if(!pJson["RolledHp"].isNull())
         {
             rolledhp_=std::make_shared<int16_t>((int16_t)pJson["RolledHp"].asInt64());
@@ -610,7 +782,7 @@ void Player::updateByJson(const Json::Value &pJson) noexcept(false)
     }
     if(pJson.isMember("Xp"))
     {
-        dirtyFlag_[11] = true;
+        dirtyFlag_[15] = true;
         if(!pJson["Xp"].isNull())
         {
             xp_=std::make_shared<int32_t>((int32_t)pJson["Xp"].asInt64());
@@ -618,7 +790,7 @@ void Player::updateByJson(const Json::Value &pJson) noexcept(false)
     }
     if(pJson.isMember("Load"))
     {
-        dirtyFlag_[12] = true;
+        dirtyFlag_[16] = true;
         if(!pJson["Load"].isNull())
         {
             load_=std::make_shared<int16_t>((int16_t)pJson["Load"].asInt64());
@@ -729,6 +901,23 @@ void Player::setClassToNull() noexcept
     dirtyFlag_[3] = true;
 }
 
+const int16_t &Player::getValueOfArmorclass() const noexcept
+{
+    const static int16_t defaultValue = int16_t();
+    if(armorclass_)
+        return *armorclass_;
+    return defaultValue;
+}
+const std::shared_ptr<int16_t> &Player::getArmorclass() const noexcept
+{
+    return armorclass_;
+}
+void Player::setArmorclass(const int16_t &pArmorclass) noexcept
+{
+    armorclass_ = std::make_shared<int16_t>(pArmorclass);
+    dirtyFlag_[4] = true;
+}
+
 const int16_t &Player::getValueOfStr() const noexcept
 {
     const static int16_t defaultValue = int16_t();
@@ -743,7 +932,7 @@ const std::shared_ptr<int16_t> &Player::getStr() const noexcept
 void Player::setStr(const int16_t &pStr) noexcept
 {
     str_ = std::make_shared<int16_t>(pStr);
-    dirtyFlag_[4] = true;
+    dirtyFlag_[5] = true;
 }
 
 const int16_t &Player::getValueOfCon() const noexcept
@@ -760,7 +949,7 @@ const std::shared_ptr<int16_t> &Player::getCon() const noexcept
 void Player::setCon(const int16_t &pCon) noexcept
 {
     con_ = std::make_shared<int16_t>(pCon);
-    dirtyFlag_[5] = true;
+    dirtyFlag_[6] = true;
 }
 
 const int16_t &Player::getValueOfDex() const noexcept
@@ -777,7 +966,7 @@ const std::shared_ptr<int16_t> &Player::getDex() const noexcept
 void Player::setDex(const int16_t &pDex) noexcept
 {
     dex_ = std::make_shared<int16_t>(pDex);
-    dirtyFlag_[6] = true;
+    dirtyFlag_[7] = true;
 }
 
 const int16_t &Player::getValueOfInt() const noexcept
@@ -794,7 +983,7 @@ const std::shared_ptr<int16_t> &Player::getInt() const noexcept
 void Player::setInt(const int16_t &pInt) noexcept
 {
     int_ = std::make_shared<int16_t>(pInt);
-    dirtyFlag_[7] = true;
+    dirtyFlag_[8] = true;
 }
 
 const int16_t &Player::getValueOfWis() const noexcept
@@ -811,7 +1000,7 @@ const std::shared_ptr<int16_t> &Player::getWis() const noexcept
 void Player::setWis(const int16_t &pWis) noexcept
 {
     wis_ = std::make_shared<int16_t>(pWis);
-    dirtyFlag_[8] = true;
+    dirtyFlag_[9] = true;
 }
 
 const int16_t &Player::getValueOfCha() const noexcept
@@ -828,7 +1017,58 @@ const std::shared_ptr<int16_t> &Player::getCha() const noexcept
 void Player::setCha(const int16_t &pCha) noexcept
 {
     cha_ = std::make_shared<int16_t>(pCha);
-    dirtyFlag_[9] = true;
+    dirtyFlag_[10] = true;
+}
+
+const int16_t &Player::getValueOfFortitude() const noexcept
+{
+    const static int16_t defaultValue = int16_t();
+    if(fortitude_)
+        return *fortitude_;
+    return defaultValue;
+}
+const std::shared_ptr<int16_t> &Player::getFortitude() const noexcept
+{
+    return fortitude_;
+}
+void Player::setFortitude(const int16_t &pFortitude) noexcept
+{
+    fortitude_ = std::make_shared<int16_t>(pFortitude);
+    dirtyFlag_[11] = true;
+}
+
+const int16_t &Player::getValueOfReflex() const noexcept
+{
+    const static int16_t defaultValue = int16_t();
+    if(reflex_)
+        return *reflex_;
+    return defaultValue;
+}
+const std::shared_ptr<int16_t> &Player::getReflex() const noexcept
+{
+    return reflex_;
+}
+void Player::setReflex(const int16_t &pReflex) noexcept
+{
+    reflex_ = std::make_shared<int16_t>(pReflex);
+    dirtyFlag_[12] = true;
+}
+
+const int16_t &Player::getValueOfWill() const noexcept
+{
+    const static int16_t defaultValue = int16_t();
+    if(will_)
+        return *will_;
+    return defaultValue;
+}
+const std::shared_ptr<int16_t> &Player::getWill() const noexcept
+{
+    return will_;
+}
+void Player::setWill(const int16_t &pWill) noexcept
+{
+    will_ = std::make_shared<int16_t>(pWill);
+    dirtyFlag_[13] = true;
 }
 
 const int16_t &Player::getValueOfRolledhp() const noexcept
@@ -845,7 +1085,7 @@ const std::shared_ptr<int16_t> &Player::getRolledhp() const noexcept
 void Player::setRolledhp(const int16_t &pRolledhp) noexcept
 {
     rolledhp_ = std::make_shared<int16_t>(pRolledhp);
-    dirtyFlag_[10] = true;
+    dirtyFlag_[14] = true;
 }
 
 const int32_t &Player::getValueOfXp() const noexcept
@@ -862,7 +1102,7 @@ const std::shared_ptr<int32_t> &Player::getXp() const noexcept
 void Player::setXp(const int32_t &pXp) noexcept
 {
     xp_ = std::make_shared<int32_t>(pXp);
-    dirtyFlag_[11] = true;
+    dirtyFlag_[15] = true;
 }
 
 const int16_t &Player::getValueOfLoad() const noexcept
@@ -879,7 +1119,7 @@ const std::shared_ptr<int16_t> &Player::getLoad() const noexcept
 void Player::setLoad(const int16_t &pLoad) noexcept
 {
     load_ = std::make_shared<int16_t>(pLoad);
-    dirtyFlag_[12] = true;
+    dirtyFlag_[16] = true;
 }
 
 void Player::updateId(const uint64_t id)
@@ -893,12 +1133,16 @@ const std::vector<std::string> &Player::insertColumns() noexcept
         "Name",
         "Race",
         "Class",
+        "ArmorClass",
         "Str",
         "Con",
         "Dex",
         "Int",
         "Wis",
         "Cha",
+        "Fortitude",
+        "Reflex",
+        "Will",
         "RolledHp",
         "Xp",
         "Load"
@@ -943,6 +1187,17 @@ void Player::outputArgs(drogon::orm::internal::SqlBinder &binder) const
     }
     if(dirtyFlag_[4])
     {
+        if(getArmorclass())
+        {
+            binder << getValueOfArmorclass();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[5])
+    {
         if(getStr())
         {
             binder << getValueOfStr();
@@ -952,7 +1207,7 @@ void Player::outputArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
-    if(dirtyFlag_[5])
+    if(dirtyFlag_[6])
     {
         if(getCon())
         {
@@ -963,7 +1218,7 @@ void Player::outputArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
-    if(dirtyFlag_[6])
+    if(dirtyFlag_[7])
     {
         if(getDex())
         {
@@ -974,7 +1229,7 @@ void Player::outputArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
-    if(dirtyFlag_[7])
+    if(dirtyFlag_[8])
     {
         if(getInt())
         {
@@ -985,7 +1240,7 @@ void Player::outputArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
-    if(dirtyFlag_[8])
+    if(dirtyFlag_[9])
     {
         if(getWis())
         {
@@ -996,7 +1251,7 @@ void Player::outputArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
-    if(dirtyFlag_[9])
+    if(dirtyFlag_[10])
     {
         if(getCha())
         {
@@ -1007,7 +1262,40 @@ void Player::outputArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
-    if(dirtyFlag_[10])
+    if(dirtyFlag_[11])
+    {
+        if(getFortitude())
+        {
+            binder << getValueOfFortitude();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[12])
+    {
+        if(getReflex())
+        {
+            binder << getValueOfReflex();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[13])
+    {
+        if(getWill())
+        {
+            binder << getValueOfWill();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[14])
     {
         if(getRolledhp())
         {
@@ -1018,7 +1306,7 @@ void Player::outputArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
-    if(dirtyFlag_[11])
+    if(dirtyFlag_[15])
     {
         if(getXp())
         {
@@ -1029,7 +1317,7 @@ void Player::outputArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
-    if(dirtyFlag_[12])
+    if(dirtyFlag_[16])
     {
         if(getLoad())
         {
@@ -1093,6 +1381,22 @@ const std::vector<std::string> Player::updateColumns() const
     {
         ret.push_back(getColumnName(12));
     }
+    if(dirtyFlag_[13])
+    {
+        ret.push_back(getColumnName(13));
+    }
+    if(dirtyFlag_[14])
+    {
+        ret.push_back(getColumnName(14));
+    }
+    if(dirtyFlag_[15])
+    {
+        ret.push_back(getColumnName(15));
+    }
+    if(dirtyFlag_[16])
+    {
+        ret.push_back(getColumnName(16));
+    }
     return ret;
 }
 
@@ -1133,6 +1437,17 @@ void Player::updateArgs(drogon::orm::internal::SqlBinder &binder) const
     }
     if(dirtyFlag_[4])
     {
+        if(getArmorclass())
+        {
+            binder << getValueOfArmorclass();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[5])
+    {
         if(getStr())
         {
             binder << getValueOfStr();
@@ -1142,7 +1457,7 @@ void Player::updateArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
-    if(dirtyFlag_[5])
+    if(dirtyFlag_[6])
     {
         if(getCon())
         {
@@ -1153,7 +1468,7 @@ void Player::updateArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
-    if(dirtyFlag_[6])
+    if(dirtyFlag_[7])
     {
         if(getDex())
         {
@@ -1164,7 +1479,7 @@ void Player::updateArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
-    if(dirtyFlag_[7])
+    if(dirtyFlag_[8])
     {
         if(getInt())
         {
@@ -1175,7 +1490,7 @@ void Player::updateArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
-    if(dirtyFlag_[8])
+    if(dirtyFlag_[9])
     {
         if(getWis())
         {
@@ -1186,7 +1501,7 @@ void Player::updateArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
-    if(dirtyFlag_[9])
+    if(dirtyFlag_[10])
     {
         if(getCha())
         {
@@ -1197,7 +1512,40 @@ void Player::updateArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
-    if(dirtyFlag_[10])
+    if(dirtyFlag_[11])
+    {
+        if(getFortitude())
+        {
+            binder << getValueOfFortitude();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[12])
+    {
+        if(getReflex())
+        {
+            binder << getValueOfReflex();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[13])
+    {
+        if(getWill())
+        {
+            binder << getValueOfWill();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[14])
     {
         if(getRolledhp())
         {
@@ -1208,7 +1556,7 @@ void Player::updateArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
-    if(dirtyFlag_[11])
+    if(dirtyFlag_[15])
     {
         if(getXp())
         {
@@ -1219,7 +1567,7 @@ void Player::updateArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
-    if(dirtyFlag_[12])
+    if(dirtyFlag_[16])
     {
         if(getLoad())
         {
@@ -1265,6 +1613,14 @@ Json::Value Player::toJson() const
     else
     {
         ret["Class"]=Json::Value();
+    }
+    if(getArmorclass())
+    {
+        ret["ArmorClass"]=getValueOfArmorclass();
+    }
+    else
+    {
+        ret["ArmorClass"]=Json::Value();
     }
     if(getStr())
     {
@@ -1314,6 +1670,30 @@ Json::Value Player::toJson() const
     {
         ret["Cha"]=Json::Value();
     }
+    if(getFortitude())
+    {
+        ret["Fortitude"]=getValueOfFortitude();
+    }
+    else
+    {
+        ret["Fortitude"]=Json::Value();
+    }
+    if(getReflex())
+    {
+        ret["Reflex"]=getValueOfReflex();
+    }
+    else
+    {
+        ret["Reflex"]=Json::Value();
+    }
+    if(getWill())
+    {
+        ret["Will"]=getValueOfWill();
+    }
+    else
+    {
+        ret["Will"]=Json::Value();
+    }
     if(getRolledhp())
     {
         ret["RolledHp"]=getValueOfRolledhp();
@@ -1345,7 +1725,7 @@ Json::Value Player::toMasqueradedJson(
     const std::vector<std::string> &pMasqueradingVector) const
 {
     Json::Value ret;
-    if(pMasqueradingVector.size() == 13)
+    if(pMasqueradingVector.size() == 17)
     {
         if(!pMasqueradingVector[0].empty())
         {
@@ -1393,9 +1773,9 @@ Json::Value Player::toMasqueradedJson(
         }
         if(!pMasqueradingVector[4].empty())
         {
-            if(getStr())
+            if(getArmorclass())
             {
-                ret[pMasqueradingVector[4]]=getValueOfStr();
+                ret[pMasqueradingVector[4]]=getValueOfArmorclass();
             }
             else
             {
@@ -1404,9 +1784,9 @@ Json::Value Player::toMasqueradedJson(
         }
         if(!pMasqueradingVector[5].empty())
         {
-            if(getCon())
+            if(getStr())
             {
-                ret[pMasqueradingVector[5]]=getValueOfCon();
+                ret[pMasqueradingVector[5]]=getValueOfStr();
             }
             else
             {
@@ -1415,9 +1795,9 @@ Json::Value Player::toMasqueradedJson(
         }
         if(!pMasqueradingVector[6].empty())
         {
-            if(getDex())
+            if(getCon())
             {
-                ret[pMasqueradingVector[6]]=getValueOfDex();
+                ret[pMasqueradingVector[6]]=getValueOfCon();
             }
             else
             {
@@ -1426,9 +1806,9 @@ Json::Value Player::toMasqueradedJson(
         }
         if(!pMasqueradingVector[7].empty())
         {
-            if(getInt())
+            if(getDex())
             {
-                ret[pMasqueradingVector[7]]=getValueOfInt();
+                ret[pMasqueradingVector[7]]=getValueOfDex();
             }
             else
             {
@@ -1437,9 +1817,9 @@ Json::Value Player::toMasqueradedJson(
         }
         if(!pMasqueradingVector[8].empty())
         {
-            if(getWis())
+            if(getInt())
             {
-                ret[pMasqueradingVector[8]]=getValueOfWis();
+                ret[pMasqueradingVector[8]]=getValueOfInt();
             }
             else
             {
@@ -1448,9 +1828,9 @@ Json::Value Player::toMasqueradedJson(
         }
         if(!pMasqueradingVector[9].empty())
         {
-            if(getCha())
+            if(getWis())
             {
-                ret[pMasqueradingVector[9]]=getValueOfCha();
+                ret[pMasqueradingVector[9]]=getValueOfWis();
             }
             else
             {
@@ -1459,9 +1839,9 @@ Json::Value Player::toMasqueradedJson(
         }
         if(!pMasqueradingVector[10].empty())
         {
-            if(getRolledhp())
+            if(getCha())
             {
-                ret[pMasqueradingVector[10]]=getValueOfRolledhp();
+                ret[pMasqueradingVector[10]]=getValueOfCha();
             }
             else
             {
@@ -1470,9 +1850,9 @@ Json::Value Player::toMasqueradedJson(
         }
         if(!pMasqueradingVector[11].empty())
         {
-            if(getXp())
+            if(getFortitude())
             {
-                ret[pMasqueradingVector[11]]=getValueOfXp();
+                ret[pMasqueradingVector[11]]=getValueOfFortitude();
             }
             else
             {
@@ -1481,13 +1861,57 @@ Json::Value Player::toMasqueradedJson(
         }
         if(!pMasqueradingVector[12].empty())
         {
-            if(getLoad())
+            if(getReflex())
             {
-                ret[pMasqueradingVector[12]]=getValueOfLoad();
+                ret[pMasqueradingVector[12]]=getValueOfReflex();
             }
             else
             {
                 ret[pMasqueradingVector[12]]=Json::Value();
+            }
+        }
+        if(!pMasqueradingVector[13].empty())
+        {
+            if(getWill())
+            {
+                ret[pMasqueradingVector[13]]=getValueOfWill();
+            }
+            else
+            {
+                ret[pMasqueradingVector[13]]=Json::Value();
+            }
+        }
+        if(!pMasqueradingVector[14].empty())
+        {
+            if(getRolledhp())
+            {
+                ret[pMasqueradingVector[14]]=getValueOfRolledhp();
+            }
+            else
+            {
+                ret[pMasqueradingVector[14]]=Json::Value();
+            }
+        }
+        if(!pMasqueradingVector[15].empty())
+        {
+            if(getXp())
+            {
+                ret[pMasqueradingVector[15]]=getValueOfXp();
+            }
+            else
+            {
+                ret[pMasqueradingVector[15]]=Json::Value();
+            }
+        }
+        if(!pMasqueradingVector[16].empty())
+        {
+            if(getLoad())
+            {
+                ret[pMasqueradingVector[16]]=getValueOfLoad();
+            }
+            else
+            {
+                ret[pMasqueradingVector[16]]=Json::Value();
             }
         }
         return ret;
@@ -1524,6 +1948,14 @@ Json::Value Player::toMasqueradedJson(
     else
     {
         ret["Class"]=Json::Value();
+    }
+    if(getArmorclass())
+    {
+        ret["ArmorClass"]=getValueOfArmorclass();
+    }
+    else
+    {
+        ret["ArmorClass"]=Json::Value();
     }
     if(getStr())
     {
@@ -1572,6 +2004,30 @@ Json::Value Player::toMasqueradedJson(
     else
     {
         ret["Cha"]=Json::Value();
+    }
+    if(getFortitude())
+    {
+        ret["Fortitude"]=getValueOfFortitude();
+    }
+    else
+    {
+        ret["Fortitude"]=Json::Value();
+    }
+    if(getReflex())
+    {
+        ret["Reflex"]=getValueOfReflex();
+    }
+    else
+    {
+        ret["Reflex"]=Json::Value();
+    }
+    if(getWill())
+    {
+        ret["Will"]=getValueOfWill();
+    }
+    else
+    {
+        ret["Will"]=Json::Value();
     }
     if(getRolledhp())
     {
@@ -1622,49 +2078,69 @@ bool Player::validateJsonForCreation(const Json::Value &pJson, std::string &err)
         if(!validJsonOfField(3, "Class", pJson["Class"], err, true))
             return false;
     }
+    if(pJson.isMember("ArmorClass"))
+    {
+        if(!validJsonOfField(4, "ArmorClass", pJson["ArmorClass"], err, true))
+            return false;
+    }
     if(pJson.isMember("Str"))
     {
-        if(!validJsonOfField(4, "Str", pJson["Str"], err, true))
+        if(!validJsonOfField(5, "Str", pJson["Str"], err, true))
             return false;
     }
     if(pJson.isMember("Con"))
     {
-        if(!validJsonOfField(5, "Con", pJson["Con"], err, true))
+        if(!validJsonOfField(6, "Con", pJson["Con"], err, true))
             return false;
     }
     if(pJson.isMember("Dex"))
     {
-        if(!validJsonOfField(6, "Dex", pJson["Dex"], err, true))
+        if(!validJsonOfField(7, "Dex", pJson["Dex"], err, true))
             return false;
     }
     if(pJson.isMember("Int"))
     {
-        if(!validJsonOfField(7, "Int", pJson["Int"], err, true))
+        if(!validJsonOfField(8, "Int", pJson["Int"], err, true))
             return false;
     }
     if(pJson.isMember("Wis"))
     {
-        if(!validJsonOfField(8, "Wis", pJson["Wis"], err, true))
+        if(!validJsonOfField(9, "Wis", pJson["Wis"], err, true))
             return false;
     }
     if(pJson.isMember("Cha"))
     {
-        if(!validJsonOfField(9, "Cha", pJson["Cha"], err, true))
+        if(!validJsonOfField(10, "Cha", pJson["Cha"], err, true))
+            return false;
+    }
+    if(pJson.isMember("Fortitude"))
+    {
+        if(!validJsonOfField(11, "Fortitude", pJson["Fortitude"], err, true))
+            return false;
+    }
+    if(pJson.isMember("Reflex"))
+    {
+        if(!validJsonOfField(12, "Reflex", pJson["Reflex"], err, true))
+            return false;
+    }
+    if(pJson.isMember("Will"))
+    {
+        if(!validJsonOfField(13, "Will", pJson["Will"], err, true))
             return false;
     }
     if(pJson.isMember("RolledHp"))
     {
-        if(!validJsonOfField(10, "RolledHp", pJson["RolledHp"], err, true))
+        if(!validJsonOfField(14, "RolledHp", pJson["RolledHp"], err, true))
             return false;
     }
     if(pJson.isMember("Xp"))
     {
-        if(!validJsonOfField(11, "Xp", pJson["Xp"], err, true))
+        if(!validJsonOfField(15, "Xp", pJson["Xp"], err, true))
             return false;
     }
     if(pJson.isMember("Load"))
     {
-        if(!validJsonOfField(12, "Load", pJson["Load"], err, true))
+        if(!validJsonOfField(16, "Load", pJson["Load"], err, true))
             return false;
     }
     else
@@ -1678,7 +2154,7 @@ bool Player::validateMasqueradedJsonForCreation(const Json::Value &pJson,
                                                 const std::vector<std::string> &pMasqueradingVector,
                                                 std::string &err)
 {
-    if(pMasqueradingVector.size() != 13)
+    if(pMasqueradingVector.size() != 17)
     {
         err = "Bad masquerading vector";
         return false;
@@ -1787,9 +2263,41 @@ bool Player::validateMasqueradedJsonForCreation(const Json::Value &pJson,
               if(!validJsonOfField(12, pMasqueradingVector[12], pJson[pMasqueradingVector[12]], err, true))
                   return false;
           }
+      }
+      if(!pMasqueradingVector[13].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[13]))
+          {
+              if(!validJsonOfField(13, pMasqueradingVector[13], pJson[pMasqueradingVector[13]], err, true))
+                  return false;
+          }
+      }
+      if(!pMasqueradingVector[14].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[14]))
+          {
+              if(!validJsonOfField(14, pMasqueradingVector[14], pJson[pMasqueradingVector[14]], err, true))
+                  return false;
+          }
+      }
+      if(!pMasqueradingVector[15].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[15]))
+          {
+              if(!validJsonOfField(15, pMasqueradingVector[15], pJson[pMasqueradingVector[15]], err, true))
+                  return false;
+          }
+      }
+      if(!pMasqueradingVector[16].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[16]))
+          {
+              if(!validJsonOfField(16, pMasqueradingVector[16], pJson[pMasqueradingVector[16]], err, true))
+                  return false;
+          }
         else
         {
-            err="The " + pMasqueradingVector[12] + " column cannot be null";
+            err="The " + pMasqueradingVector[16] + " column cannot be null";
             return false;
         }
       }
@@ -1828,49 +2336,69 @@ bool Player::validateJsonForUpdate(const Json::Value &pJson, std::string &err)
         if(!validJsonOfField(3, "Class", pJson["Class"], err, false))
             return false;
     }
+    if(pJson.isMember("ArmorClass"))
+    {
+        if(!validJsonOfField(4, "ArmorClass", pJson["ArmorClass"], err, false))
+            return false;
+    }
     if(pJson.isMember("Str"))
     {
-        if(!validJsonOfField(4, "Str", pJson["Str"], err, false))
+        if(!validJsonOfField(5, "Str", pJson["Str"], err, false))
             return false;
     }
     if(pJson.isMember("Con"))
     {
-        if(!validJsonOfField(5, "Con", pJson["Con"], err, false))
+        if(!validJsonOfField(6, "Con", pJson["Con"], err, false))
             return false;
     }
     if(pJson.isMember("Dex"))
     {
-        if(!validJsonOfField(6, "Dex", pJson["Dex"], err, false))
+        if(!validJsonOfField(7, "Dex", pJson["Dex"], err, false))
             return false;
     }
     if(pJson.isMember("Int"))
     {
-        if(!validJsonOfField(7, "Int", pJson["Int"], err, false))
+        if(!validJsonOfField(8, "Int", pJson["Int"], err, false))
             return false;
     }
     if(pJson.isMember("Wis"))
     {
-        if(!validJsonOfField(8, "Wis", pJson["Wis"], err, false))
+        if(!validJsonOfField(9, "Wis", pJson["Wis"], err, false))
             return false;
     }
     if(pJson.isMember("Cha"))
     {
-        if(!validJsonOfField(9, "Cha", pJson["Cha"], err, false))
+        if(!validJsonOfField(10, "Cha", pJson["Cha"], err, false))
+            return false;
+    }
+    if(pJson.isMember("Fortitude"))
+    {
+        if(!validJsonOfField(11, "Fortitude", pJson["Fortitude"], err, false))
+            return false;
+    }
+    if(pJson.isMember("Reflex"))
+    {
+        if(!validJsonOfField(12, "Reflex", pJson["Reflex"], err, false))
+            return false;
+    }
+    if(pJson.isMember("Will"))
+    {
+        if(!validJsonOfField(13, "Will", pJson["Will"], err, false))
             return false;
     }
     if(pJson.isMember("RolledHp"))
     {
-        if(!validJsonOfField(10, "RolledHp", pJson["RolledHp"], err, false))
+        if(!validJsonOfField(14, "RolledHp", pJson["RolledHp"], err, false))
             return false;
     }
     if(pJson.isMember("Xp"))
     {
-        if(!validJsonOfField(11, "Xp", pJson["Xp"], err, false))
+        if(!validJsonOfField(15, "Xp", pJson["Xp"], err, false))
             return false;
     }
     if(pJson.isMember("Load"))
     {
-        if(!validJsonOfField(12, "Load", pJson["Load"], err, false))
+        if(!validJsonOfField(16, "Load", pJson["Load"], err, false))
             return false;
     }
     return true;
@@ -1879,7 +2407,7 @@ bool Player::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
                                               const std::vector<std::string> &pMasqueradingVector,
                                               std::string &err)
 {
-    if(pMasqueradingVector.size() != 13)
+    if(pMasqueradingVector.size() != 17)
     {
         err = "Bad masquerading vector";
         return false;
@@ -1953,6 +2481,26 @@ bool Player::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
       if(!pMasqueradingVector[12].empty() && pJson.isMember(pMasqueradingVector[12]))
       {
           if(!validJsonOfField(12, pMasqueradingVector[12], pJson[pMasqueradingVector[12]], err, false))
+              return false;
+      }
+      if(!pMasqueradingVector[13].empty() && pJson.isMember(pMasqueradingVector[13]))
+      {
+          if(!validJsonOfField(13, pMasqueradingVector[13], pJson[pMasqueradingVector[13]], err, false))
+              return false;
+      }
+      if(!pMasqueradingVector[14].empty() && pJson.isMember(pMasqueradingVector[14]))
+      {
+          if(!validJsonOfField(14, pMasqueradingVector[14], pJson[pMasqueradingVector[14]], err, false))
+              return false;
+      }
+      if(!pMasqueradingVector[15].empty() && pJson.isMember(pMasqueradingVector[15]))
+      {
+          if(!validJsonOfField(15, pMasqueradingVector[15], pJson[pMasqueradingVector[15]], err, false))
+              return false;
+      }
+      if(!pMasqueradingVector[16].empty() && pJson.isMember(pMasqueradingVector[16]))
+      {
+          if(!validJsonOfField(16, pMasqueradingVector[16], pJson[pMasqueradingVector[16]], err, false))
               return false;
       }
     }
@@ -2145,6 +2693,54 @@ bool Player::validJsonOfField(size_t index,
             }
             break;
         case 12:
+            if(pJson.isNull())
+            {
+                err="The " + fieldName + " column cannot be null";
+                return false;
+            }
+            if(!pJson.isInt())
+            {
+                err="Type error in the "+fieldName+" field";
+                return false;
+            }
+            break;
+        case 13:
+            if(pJson.isNull())
+            {
+                err="The " + fieldName + " column cannot be null";
+                return false;
+            }
+            if(!pJson.isInt())
+            {
+                err="Type error in the "+fieldName+" field";
+                return false;
+            }
+            break;
+        case 14:
+            if(pJson.isNull())
+            {
+                err="The " + fieldName + " column cannot be null";
+                return false;
+            }
+            if(!pJson.isInt())
+            {
+                err="Type error in the "+fieldName+" field";
+                return false;
+            }
+            break;
+        case 15:
+            if(pJson.isNull())
+            {
+                err="The " + fieldName + " column cannot be null";
+                return false;
+            }
+            if(!pJson.isInt())
+            {
+                err="Type error in the "+fieldName+" field";
+                return false;
+            }
+            break;
+        case 16:
             if(pJson.isNull())
             {
                 err="The " + fieldName + " column cannot be null";

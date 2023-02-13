@@ -18,6 +18,7 @@ const std::string Item::Cols::_Id = "Id";
 const std::string Item::Cols::_Name = "Name";
 const std::string Item::Cols::_Description = "Description";
 const std::string Item::Cols::_PlayerId = "PlayerId";
+const std::string Item::Cols::_Weight = "Weight";
 const std::string Item::primaryKeyName = "Id";
 const bool Item::hasPrimaryKey = true;
 const std::string Item::tableName = "item";
@@ -26,7 +27,8 @@ const std::vector<typename Item::MetaData> Item::metaData_={
 {"Id","int32_t","int(11)",4,1,1,1},
 {"Name","std::string","varchar(100)",100,0,0,1},
 {"Description","std::string","varchar(100)",100,0,0,0},
-{"PlayerId","int32_t","int(11)",4,0,0,0}
+{"PlayerId","int32_t","int(11)",4,0,0,0},
+{"Weight","int32_t","int(11)",4,0,0,0}
 };
 const std::string &Item::getColumnName(size_t index) noexcept(false)
 {
@@ -53,11 +55,15 @@ Item::Item(const Row &r, const ssize_t indexOffset) noexcept
         {
             playerid_=std::make_shared<int32_t>(r["PlayerId"].as<int32_t>());
         }
+        if(!r["Weight"].isNull())
+        {
+            weight_=std::make_shared<int32_t>(r["Weight"].as<int32_t>());
+        }
     }
     else
     {
         size_t offset = (size_t)indexOffset;
-        if(offset + 4 > r.size())
+        if(offset + 5 > r.size())
         {
             LOG_FATAL << "Invalid SQL result for this model";
             return;
@@ -83,13 +89,18 @@ Item::Item(const Row &r, const ssize_t indexOffset) noexcept
         {
             playerid_=std::make_shared<int32_t>(r[index].as<int32_t>());
         }
+        index = offset + 4;
+        if(!r[index].isNull())
+        {
+            weight_=std::make_shared<int32_t>(r[index].as<int32_t>());
+        }
     }
 
 }
 
 Item::Item(const Json::Value &pJson, const std::vector<std::string> &pMasqueradingVector) noexcept(false)
 {
-    if(pMasqueradingVector.size() != 4)
+    if(pMasqueradingVector.size() != 5)
     {
         LOG_ERROR << "Bad masquerading vector";
         return;
@@ -124,6 +135,14 @@ Item::Item(const Json::Value &pJson, const std::vector<std::string> &pMasqueradi
         if(!pJson[pMasqueradingVector[3]].isNull())
         {
             playerid_=std::make_shared<int32_t>((int32_t)pJson[pMasqueradingVector[3]].asInt64());
+        }
+    }
+    if(!pMasqueradingVector[4].empty() && pJson.isMember(pMasqueradingVector[4]))
+    {
+        dirtyFlag_[4] = true;
+        if(!pJson[pMasqueradingVector[4]].isNull())
+        {
+            weight_=std::make_shared<int32_t>((int32_t)pJson[pMasqueradingVector[4]].asInt64());
         }
     }
 }
@@ -162,12 +181,20 @@ Item::Item(const Json::Value &pJson) noexcept(false)
             playerid_=std::make_shared<int32_t>((int32_t)pJson["PlayerId"].asInt64());
         }
     }
+    if(pJson.isMember("Weight"))
+    {
+        dirtyFlag_[4]=true;
+        if(!pJson["Weight"].isNull())
+        {
+            weight_=std::make_shared<int32_t>((int32_t)pJson["Weight"].asInt64());
+        }
+    }
 }
 
 void Item::updateByMasqueradedJson(const Json::Value &pJson,
                                             const std::vector<std::string> &pMasqueradingVector) noexcept(false)
 {
-    if(pMasqueradingVector.size() != 4)
+    if(pMasqueradingVector.size() != 5)
     {
         LOG_ERROR << "Bad masquerading vector";
         return;
@@ -203,6 +230,14 @@ void Item::updateByMasqueradedJson(const Json::Value &pJson,
             playerid_=std::make_shared<int32_t>((int32_t)pJson[pMasqueradingVector[3]].asInt64());
         }
     }
+    if(!pMasqueradingVector[4].empty() && pJson.isMember(pMasqueradingVector[4]))
+    {
+        dirtyFlag_[4] = true;
+        if(!pJson[pMasqueradingVector[4]].isNull())
+        {
+            weight_=std::make_shared<int32_t>((int32_t)pJson[pMasqueradingVector[4]].asInt64());
+        }
+    }
 }
 
 void Item::updateByJson(const Json::Value &pJson) noexcept(false)
@@ -236,6 +271,14 @@ void Item::updateByJson(const Json::Value &pJson) noexcept(false)
         if(!pJson["PlayerId"].isNull())
         {
             playerid_=std::make_shared<int32_t>((int32_t)pJson["PlayerId"].asInt64());
+        }
+    }
+    if(pJson.isMember("Weight"))
+    {
+        dirtyFlag_[4] = true;
+        if(!pJson["Weight"].isNull())
+        {
+            weight_=std::make_shared<int32_t>((int32_t)pJson["Weight"].asInt64());
         }
     }
 }
@@ -333,6 +376,28 @@ void Item::setPlayeridToNull() noexcept
     dirtyFlag_[3] = true;
 }
 
+const int32_t &Item::getValueOfWeight() const noexcept
+{
+    const static int32_t defaultValue = int32_t();
+    if(weight_)
+        return *weight_;
+    return defaultValue;
+}
+const std::shared_ptr<int32_t> &Item::getWeight() const noexcept
+{
+    return weight_;
+}
+void Item::setWeight(const int32_t &pWeight) noexcept
+{
+    weight_ = std::make_shared<int32_t>(pWeight);
+    dirtyFlag_[4] = true;
+}
+void Item::setWeightToNull() noexcept
+{
+    weight_.reset();
+    dirtyFlag_[4] = true;
+}
+
 void Item::updateId(const uint64_t id)
 {
     id_ = std::make_shared<int32_t>(static_cast<int32_t>(id));
@@ -343,7 +408,8 @@ const std::vector<std::string> &Item::insertColumns() noexcept
     static const std::vector<std::string> inCols={
         "Name",
         "Description",
-        "PlayerId"
+        "PlayerId",
+        "Weight"
     };
     return inCols;
 }
@@ -383,6 +449,17 @@ void Item::outputArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
+    if(dirtyFlag_[4])
+    {
+        if(getWeight())
+        {
+            binder << getValueOfWeight();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
 }
 
 const std::vector<std::string> Item::updateColumns() const
@@ -399,6 +476,10 @@ const std::vector<std::string> Item::updateColumns() const
     if(dirtyFlag_[3])
     {
         ret.push_back(getColumnName(3));
+    }
+    if(dirtyFlag_[4])
+    {
+        ret.push_back(getColumnName(4));
     }
     return ret;
 }
@@ -432,6 +513,17 @@ void Item::updateArgs(drogon::orm::internal::SqlBinder &binder) const
         if(getPlayerid())
         {
             binder << getValueOfPlayerid();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[4])
+    {
+        if(getWeight())
+        {
+            binder << getValueOfWeight();
         }
         else
         {
@@ -474,6 +566,14 @@ Json::Value Item::toJson() const
     {
         ret["PlayerId"]=Json::Value();
     }
+    if(getWeight())
+    {
+        ret["Weight"]=getValueOfWeight();
+    }
+    else
+    {
+        ret["Weight"]=Json::Value();
+    }
     return ret;
 }
 
@@ -481,7 +581,7 @@ Json::Value Item::toMasqueradedJson(
     const std::vector<std::string> &pMasqueradingVector) const
 {
     Json::Value ret;
-    if(pMasqueradingVector.size() == 4)
+    if(pMasqueradingVector.size() == 5)
     {
         if(!pMasqueradingVector[0].empty())
         {
@@ -527,6 +627,17 @@ Json::Value Item::toMasqueradedJson(
                 ret[pMasqueradingVector[3]]=Json::Value();
             }
         }
+        if(!pMasqueradingVector[4].empty())
+        {
+            if(getWeight())
+            {
+                ret[pMasqueradingVector[4]]=getValueOfWeight();
+            }
+            else
+            {
+                ret[pMasqueradingVector[4]]=Json::Value();
+            }
+        }
         return ret;
     }
     LOG_ERROR << "Masquerade failed";
@@ -562,6 +673,14 @@ Json::Value Item::toMasqueradedJson(
     {
         ret["PlayerId"]=Json::Value();
     }
+    if(getWeight())
+    {
+        ret["Weight"]=getValueOfWeight();
+    }
+    else
+    {
+        ret["Weight"]=Json::Value();
+    }
     return ret;
 }
 
@@ -592,13 +711,18 @@ bool Item::validateJsonForCreation(const Json::Value &pJson, std::string &err)
         if(!validJsonOfField(3, "PlayerId", pJson["PlayerId"], err, true))
             return false;
     }
+    if(pJson.isMember("Weight"))
+    {
+        if(!validJsonOfField(4, "Weight", pJson["Weight"], err, true))
+            return false;
+    }
     return true;
 }
 bool Item::validateMasqueradedJsonForCreation(const Json::Value &pJson,
                                               const std::vector<std::string> &pMasqueradingVector,
                                               std::string &err)
 {
-    if(pMasqueradingVector.size() != 4)
+    if(pMasqueradingVector.size() != 5)
     {
         err = "Bad masquerading vector";
         return false;
@@ -641,6 +765,14 @@ bool Item::validateMasqueradedJsonForCreation(const Json::Value &pJson,
                   return false;
           }
       }
+      if(!pMasqueradingVector[4].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[4]))
+          {
+              if(!validJsonOfField(4, pMasqueradingVector[4], pJson[pMasqueradingVector[4]], err, true))
+                  return false;
+          }
+      }
     }
     catch(const Json::LogicError &e)
     {
@@ -676,13 +808,18 @@ bool Item::validateJsonForUpdate(const Json::Value &pJson, std::string &err)
         if(!validJsonOfField(3, "PlayerId", pJson["PlayerId"], err, false))
             return false;
     }
+    if(pJson.isMember("Weight"))
+    {
+        if(!validJsonOfField(4, "Weight", pJson["Weight"], err, false))
+            return false;
+    }
     return true;
 }
 bool Item::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
                                             const std::vector<std::string> &pMasqueradingVector,
                                             std::string &err)
 {
-    if(pMasqueradingVector.size() != 4)
+    if(pMasqueradingVector.size() != 5)
     {
         err = "Bad masquerading vector";
         return false;
@@ -711,6 +848,11 @@ bool Item::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
       if(!pMasqueradingVector[3].empty() && pJson.isMember(pMasqueradingVector[3]))
       {
           if(!validJsonOfField(3, pMasqueradingVector[3], pJson[pMasqueradingVector[3]], err, false))
+              return false;
+      }
+      if(!pMasqueradingVector[4].empty() && pJson.isMember(pMasqueradingVector[4]))
+      {
+          if(!validJsonOfField(4, pMasqueradingVector[4], pJson[pMasqueradingVector[4]], err, false))
               return false;
       }
     }
@@ -788,6 +930,17 @@ bool Item::validJsonOfField(size_t index,
 
             break;
         case 3:
+            if(pJson.isNull())
+            {
+                return true;
+            }
+            if(!pJson.isInt())
+            {
+                err="Type error in the "+fieldName+" field";
+                return false;
+            }
+            break;
+        case 4:
             if(pJson.isNull())
             {
                 return true;

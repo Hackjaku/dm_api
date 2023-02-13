@@ -16,6 +16,7 @@ using namespace drogon_model::dnd;
 const std::string Spell::Cols::_Id = "Id";
 const std::string Spell::Cols::_Name = "Name";
 const std::string Spell::Cols::_Description = "Description";
+const std::string Spell::Cols::_Level = "Level";
 const std::string Spell::Cols::_PlayerId = "PlayerId";
 const std::string Spell::primaryKeyName = "Id";
 const bool Spell::hasPrimaryKey = true;
@@ -25,6 +26,7 @@ const std::vector<typename Spell::MetaData> Spell::metaData_={
 {"Id","int32_t","int(11)",4,1,1,1},
 {"Name","std::string","varchar(100)",100,0,0,1},
 {"Description","std::string","varchar(100)",100,0,0,0},
+{"Level","int16_t","smallint(6)",2,0,0,1},
 {"PlayerId","int32_t","int(11)",4,0,0,1}
 };
 const std::string &Spell::getColumnName(size_t index) noexcept(false)
@@ -48,6 +50,10 @@ Spell::Spell(const Row &r, const ssize_t indexOffset) noexcept
         {
             description_=std::make_shared<std::string>(r["Description"].as<std::string>());
         }
+        if(!r["Level"].isNull())
+        {
+            level_=std::make_shared<int16_t>(r["Level"].as<int16_t>());
+        }
         if(!r["PlayerId"].isNull())
         {
             playerid_=std::make_shared<int32_t>(r["PlayerId"].as<int32_t>());
@@ -56,7 +62,7 @@ Spell::Spell(const Row &r, const ssize_t indexOffset) noexcept
     else
     {
         size_t offset = (size_t)indexOffset;
-        if(offset + 4 > r.size())
+        if(offset + 5 > r.size())
         {
             LOG_FATAL << "Invalid SQL result for this model";
             return;
@@ -80,6 +86,11 @@ Spell::Spell(const Row &r, const ssize_t indexOffset) noexcept
         index = offset + 3;
         if(!r[index].isNull())
         {
+            level_=std::make_shared<int16_t>(r[index].as<int16_t>());
+        }
+        index = offset + 4;
+        if(!r[index].isNull())
+        {
             playerid_=std::make_shared<int32_t>(r[index].as<int32_t>());
         }
     }
@@ -88,7 +99,7 @@ Spell::Spell(const Row &r, const ssize_t indexOffset) noexcept
 
 Spell::Spell(const Json::Value &pJson, const std::vector<std::string> &pMasqueradingVector) noexcept(false)
 {
-    if(pMasqueradingVector.size() != 4)
+    if(pMasqueradingVector.size() != 5)
     {
         LOG_ERROR << "Bad masquerading vector";
         return;
@@ -122,7 +133,15 @@ Spell::Spell(const Json::Value &pJson, const std::vector<std::string> &pMasquera
         dirtyFlag_[3] = true;
         if(!pJson[pMasqueradingVector[3]].isNull())
         {
-            playerid_=std::make_shared<int32_t>((int32_t)pJson[pMasqueradingVector[3]].asInt64());
+            level_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[3]].asInt64());
+        }
+    }
+    if(!pMasqueradingVector[4].empty() && pJson.isMember(pMasqueradingVector[4]))
+    {
+        dirtyFlag_[4] = true;
+        if(!pJson[pMasqueradingVector[4]].isNull())
+        {
+            playerid_=std::make_shared<int32_t>((int32_t)pJson[pMasqueradingVector[4]].asInt64());
         }
     }
 }
@@ -153,9 +172,17 @@ Spell::Spell(const Json::Value &pJson) noexcept(false)
             description_=std::make_shared<std::string>(pJson["Description"].asString());
         }
     }
-    if(pJson.isMember("PlayerId"))
+    if(pJson.isMember("Level"))
     {
         dirtyFlag_[3]=true;
+        if(!pJson["Level"].isNull())
+        {
+            level_=std::make_shared<int16_t>((int16_t)pJson["Level"].asInt64());
+        }
+    }
+    if(pJson.isMember("PlayerId"))
+    {
+        dirtyFlag_[4]=true;
         if(!pJson["PlayerId"].isNull())
         {
             playerid_=std::make_shared<int32_t>((int32_t)pJson["PlayerId"].asInt64());
@@ -166,7 +193,7 @@ Spell::Spell(const Json::Value &pJson) noexcept(false)
 void Spell::updateByMasqueradedJson(const Json::Value &pJson,
                                             const std::vector<std::string> &pMasqueradingVector) noexcept(false)
 {
-    if(pMasqueradingVector.size() != 4)
+    if(pMasqueradingVector.size() != 5)
     {
         LOG_ERROR << "Bad masquerading vector";
         return;
@@ -199,7 +226,15 @@ void Spell::updateByMasqueradedJson(const Json::Value &pJson,
         dirtyFlag_[3] = true;
         if(!pJson[pMasqueradingVector[3]].isNull())
         {
-            playerid_=std::make_shared<int32_t>((int32_t)pJson[pMasqueradingVector[3]].asInt64());
+            level_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[3]].asInt64());
+        }
+    }
+    if(!pMasqueradingVector[4].empty() && pJson.isMember(pMasqueradingVector[4]))
+    {
+        dirtyFlag_[4] = true;
+        if(!pJson[pMasqueradingVector[4]].isNull())
+        {
+            playerid_=std::make_shared<int32_t>((int32_t)pJson[pMasqueradingVector[4]].asInt64());
         }
     }
 }
@@ -229,9 +264,17 @@ void Spell::updateByJson(const Json::Value &pJson) noexcept(false)
             description_=std::make_shared<std::string>(pJson["Description"].asString());
         }
     }
-    if(pJson.isMember("PlayerId"))
+    if(pJson.isMember("Level"))
     {
         dirtyFlag_[3] = true;
+        if(!pJson["Level"].isNull())
+        {
+            level_=std::make_shared<int16_t>((int16_t)pJson["Level"].asInt64());
+        }
+    }
+    if(pJson.isMember("PlayerId"))
+    {
+        dirtyFlag_[4] = true;
         if(!pJson["PlayerId"].isNull())
         {
             playerid_=std::make_shared<int32_t>((int32_t)pJson["PlayerId"].asInt64());
@@ -310,6 +353,23 @@ void Spell::setDescriptionToNull() noexcept
     dirtyFlag_[2] = true;
 }
 
+const int16_t &Spell::getValueOfLevel() const noexcept
+{
+    const static int16_t defaultValue = int16_t();
+    if(level_)
+        return *level_;
+    return defaultValue;
+}
+const std::shared_ptr<int16_t> &Spell::getLevel() const noexcept
+{
+    return level_;
+}
+void Spell::setLevel(const int16_t &pLevel) noexcept
+{
+    level_ = std::make_shared<int16_t>(pLevel);
+    dirtyFlag_[3] = true;
+}
+
 const int32_t &Spell::getValueOfPlayerid() const noexcept
 {
     const static int32_t defaultValue = int32_t();
@@ -324,7 +384,7 @@ const std::shared_ptr<int32_t> &Spell::getPlayerid() const noexcept
 void Spell::setPlayerid(const int32_t &pPlayerid) noexcept
 {
     playerid_ = std::make_shared<int32_t>(pPlayerid);
-    dirtyFlag_[3] = true;
+    dirtyFlag_[4] = true;
 }
 
 void Spell::updateId(const uint64_t id)
@@ -337,6 +397,7 @@ const std::vector<std::string> &Spell::insertColumns() noexcept
     static const std::vector<std::string> inCols={
         "Name",
         "Description",
+        "Level",
         "PlayerId"
     };
     return inCols;
@@ -368,6 +429,17 @@ void Spell::outputArgs(drogon::orm::internal::SqlBinder &binder) const
     }
     if(dirtyFlag_[3])
     {
+        if(getLevel())
+        {
+            binder << getValueOfLevel();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[4])
+    {
         if(getPlayerid())
         {
             binder << getValueOfPlayerid();
@@ -393,6 +465,10 @@ const std::vector<std::string> Spell::updateColumns() const
     if(dirtyFlag_[3])
     {
         ret.push_back(getColumnName(3));
+    }
+    if(dirtyFlag_[4])
+    {
+        ret.push_back(getColumnName(4));
     }
     return ret;
 }
@@ -422,6 +498,17 @@ void Spell::updateArgs(drogon::orm::internal::SqlBinder &binder) const
         }
     }
     if(dirtyFlag_[3])
+    {
+        if(getLevel())
+        {
+            binder << getValueOfLevel();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[4])
     {
         if(getPlayerid())
         {
@@ -460,6 +547,14 @@ Json::Value Spell::toJson() const
     {
         ret["Description"]=Json::Value();
     }
+    if(getLevel())
+    {
+        ret["Level"]=getValueOfLevel();
+    }
+    else
+    {
+        ret["Level"]=Json::Value();
+    }
     if(getPlayerid())
     {
         ret["PlayerId"]=getValueOfPlayerid();
@@ -475,7 +570,7 @@ Json::Value Spell::toMasqueradedJson(
     const std::vector<std::string> &pMasqueradingVector) const
 {
     Json::Value ret;
-    if(pMasqueradingVector.size() == 4)
+    if(pMasqueradingVector.size() == 5)
     {
         if(!pMasqueradingVector[0].empty())
         {
@@ -512,13 +607,24 @@ Json::Value Spell::toMasqueradedJson(
         }
         if(!pMasqueradingVector[3].empty())
         {
-            if(getPlayerid())
+            if(getLevel())
             {
-                ret[pMasqueradingVector[3]]=getValueOfPlayerid();
+                ret[pMasqueradingVector[3]]=getValueOfLevel();
             }
             else
             {
                 ret[pMasqueradingVector[3]]=Json::Value();
+            }
+        }
+        if(!pMasqueradingVector[4].empty())
+        {
+            if(getPlayerid())
+            {
+                ret[pMasqueradingVector[4]]=getValueOfPlayerid();
+            }
+            else
+            {
+                ret[pMasqueradingVector[4]]=Json::Value();
             }
         }
         return ret;
@@ -547,6 +653,14 @@ Json::Value Spell::toMasqueradedJson(
     else
     {
         ret["Description"]=Json::Value();
+    }
+    if(getLevel())
+    {
+        ret["Level"]=getValueOfLevel();
+    }
+    else
+    {
+        ret["Level"]=Json::Value();
     }
     if(getPlayerid())
     {
@@ -581,9 +695,14 @@ bool Spell::validateJsonForCreation(const Json::Value &pJson, std::string &err)
         if(!validJsonOfField(2, "Description", pJson["Description"], err, true))
             return false;
     }
+    if(pJson.isMember("Level"))
+    {
+        if(!validJsonOfField(3, "Level", pJson["Level"], err, true))
+            return false;
+    }
     if(pJson.isMember("PlayerId"))
     {
-        if(!validJsonOfField(3, "PlayerId", pJson["PlayerId"], err, true))
+        if(!validJsonOfField(4, "PlayerId", pJson["PlayerId"], err, true))
             return false;
     }
     else
@@ -597,7 +716,7 @@ bool Spell::validateMasqueradedJsonForCreation(const Json::Value &pJson,
                                                const std::vector<std::string> &pMasqueradingVector,
                                                std::string &err)
 {
-    if(pMasqueradingVector.size() != 4)
+    if(pMasqueradingVector.size() != 5)
     {
         err = "Bad masquerading vector";
         return false;
@@ -639,9 +758,17 @@ bool Spell::validateMasqueradedJsonForCreation(const Json::Value &pJson,
               if(!validJsonOfField(3, pMasqueradingVector[3], pJson[pMasqueradingVector[3]], err, true))
                   return false;
           }
+      }
+      if(!pMasqueradingVector[4].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[4]))
+          {
+              if(!validJsonOfField(4, pMasqueradingVector[4], pJson[pMasqueradingVector[4]], err, true))
+                  return false;
+          }
         else
         {
-            err="The " + pMasqueradingVector[3] + " column cannot be null";
+            err="The " + pMasqueradingVector[4] + " column cannot be null";
             return false;
         }
       }
@@ -675,9 +802,14 @@ bool Spell::validateJsonForUpdate(const Json::Value &pJson, std::string &err)
         if(!validJsonOfField(2, "Description", pJson["Description"], err, false))
             return false;
     }
+    if(pJson.isMember("Level"))
+    {
+        if(!validJsonOfField(3, "Level", pJson["Level"], err, false))
+            return false;
+    }
     if(pJson.isMember("PlayerId"))
     {
-        if(!validJsonOfField(3, "PlayerId", pJson["PlayerId"], err, false))
+        if(!validJsonOfField(4, "PlayerId", pJson["PlayerId"], err, false))
             return false;
     }
     return true;
@@ -686,7 +818,7 @@ bool Spell::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
                                              const std::vector<std::string> &pMasqueradingVector,
                                              std::string &err)
 {
-    if(pMasqueradingVector.size() != 4)
+    if(pMasqueradingVector.size() != 5)
     {
         err = "Bad masquerading vector";
         return false;
@@ -715,6 +847,11 @@ bool Spell::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
       if(!pMasqueradingVector[3].empty() && pJson.isMember(pMasqueradingVector[3]))
       {
           if(!validJsonOfField(3, pMasqueradingVector[3], pJson[pMasqueradingVector[3]], err, false))
+              return false;
+      }
+      if(!pMasqueradingVector[4].empty() && pJson.isMember(pMasqueradingVector[4]))
+      {
+          if(!validJsonOfField(4, pMasqueradingVector[4], pJson[pMasqueradingVector[4]], err, false))
               return false;
       }
     }
@@ -792,6 +929,18 @@ bool Spell::validJsonOfField(size_t index,
 
             break;
         case 3:
+            if(pJson.isNull())
+            {
+                err="The " + fieldName + " column cannot be null";
+                return false;
+            }
+            if(!pJson.isInt())
+            {
+                err="Type error in the "+fieldName+" field";
+                return false;
+            }
+            break;
+        case 4:
             if(pJson.isNull())
             {
                 err="The " + fieldName + " column cannot be null";
