@@ -54,6 +54,7 @@ class Player
         static const std::string _Cha;
         static const std::string _RolledHp;
         static const std::string _Xp;
+        static const std::string _Load;
     };
 
     const static int primaryKeyNumber;
@@ -207,8 +208,16 @@ class Player
     ///Set the value of the column Xp
     void setXp(const int32_t &pXp) noexcept;
 
+    /**  For column Load  */
+    ///Get the value of the column Load, returns the default value if the column is null
+    const int16_t &getValueOfLoad() const noexcept;
+    ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
+    const std::shared_ptr<int16_t> &getLoad() const noexcept;
+    ///Set the value of the column Load
+    void setLoad(const int16_t &pLoad) noexcept;
 
-    static size_t getColumnNumber() noexcept {  return 12;  }
+
+    static size_t getColumnNumber() noexcept {  return 13;  }
     static const std::string &getColumnName(size_t index) noexcept(false);
 
     Json::Value toJson() const;
@@ -237,6 +246,7 @@ class Player
     std::shared_ptr<int16_t> cha_;
     std::shared_ptr<int16_t> rolledhp_;
     std::shared_ptr<int32_t> xp_;
+    std::shared_ptr<int16_t> load_;
     struct MetaData
     {
         const std::string colName_;
@@ -248,7 +258,7 @@ class Player
         const bool notNull_;
     };
     static const std::vector<MetaData> metaData_;
-    bool dirtyFlag_[12]={ false };
+    bool dirtyFlag_[13]={ false };
   public:
     static const std::string &sqlForFindingByPrimaryKey()
     {
@@ -330,6 +340,11 @@ class Player
         if(!dirtyFlag_[11])
         {
             needSelection=true;
+        }
+        if(dirtyFlag_[12])
+        {
+            sql += "Load,";
+            ++parametersCount;
         }
         needSelection=true;
         if(parametersCount > 0)
@@ -427,6 +442,11 @@ class Player
         else
         {
             sql +="default,";
+        }
+        if(dirtyFlag_[12])
+        {
+            sql.append("?,");
+
         }
         if(parametersCount > 0)
         {

@@ -25,6 +25,7 @@ const std::string Player::Cols::_Wis = "Wis";
 const std::string Player::Cols::_Cha = "Cha";
 const std::string Player::Cols::_RolledHp = "RolledHp";
 const std::string Player::Cols::_Xp = "Xp";
+const std::string Player::Cols::_Load = "Load";
 const std::string Player::primaryKeyName = "Id";
 const bool Player::hasPrimaryKey = true;
 const std::string Player::tableName = "player";
@@ -41,7 +42,8 @@ const std::vector<typename Player::MetaData> Player::metaData_={
 {"Wis","int16_t","smallint(6)",2,0,0,1},
 {"Cha","int16_t","smallint(6)",2,0,0,1},
 {"RolledHp","int16_t","smallint(6)",2,0,0,1},
-{"Xp","int32_t","int(11)",4,0,0,1}
+{"Xp","int32_t","int(11)",4,0,0,1},
+{"Load","int16_t","smallint(6)",2,0,0,1}
 };
 const std::string &Player::getColumnName(size_t index) noexcept(false)
 {
@@ -100,11 +102,15 @@ Player::Player(const Row &r, const ssize_t indexOffset) noexcept
         {
             xp_=std::make_shared<int32_t>(r["Xp"].as<int32_t>());
         }
+        if(!r["Load"].isNull())
+        {
+            load_=std::make_shared<int16_t>(r["Load"].as<int16_t>());
+        }
     }
     else
     {
         size_t offset = (size_t)indexOffset;
-        if(offset + 12 > r.size())
+        if(offset + 13 > r.size())
         {
             LOG_FATAL << "Invalid SQL result for this model";
             return;
@@ -170,13 +176,18 @@ Player::Player(const Row &r, const ssize_t indexOffset) noexcept
         {
             xp_=std::make_shared<int32_t>(r[index].as<int32_t>());
         }
+        index = offset + 12;
+        if(!r[index].isNull())
+        {
+            load_=std::make_shared<int16_t>(r[index].as<int16_t>());
+        }
     }
 
 }
 
 Player::Player(const Json::Value &pJson, const std::vector<std::string> &pMasqueradingVector) noexcept(false)
 {
-    if(pMasqueradingVector.size() != 12)
+    if(pMasqueradingVector.size() != 13)
     {
         LOG_ERROR << "Bad masquerading vector";
         return;
@@ -275,6 +286,14 @@ Player::Player(const Json::Value &pJson, const std::vector<std::string> &pMasque
         if(!pJson[pMasqueradingVector[11]].isNull())
         {
             xp_=std::make_shared<int32_t>((int32_t)pJson[pMasqueradingVector[11]].asInt64());
+        }
+    }
+    if(!pMasqueradingVector[12].empty() && pJson.isMember(pMasqueradingVector[12]))
+    {
+        dirtyFlag_[12] = true;
+        if(!pJson[pMasqueradingVector[12]].isNull())
+        {
+            load_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[12]].asInt64());
         }
     }
 }
@@ -377,12 +396,20 @@ Player::Player(const Json::Value &pJson) noexcept(false)
             xp_=std::make_shared<int32_t>((int32_t)pJson["Xp"].asInt64());
         }
     }
+    if(pJson.isMember("Load"))
+    {
+        dirtyFlag_[12]=true;
+        if(!pJson["Load"].isNull())
+        {
+            load_=std::make_shared<int16_t>((int16_t)pJson["Load"].asInt64());
+        }
+    }
 }
 
 void Player::updateByMasqueradedJson(const Json::Value &pJson,
                                             const std::vector<std::string> &pMasqueradingVector) noexcept(false)
 {
-    if(pMasqueradingVector.size() != 12)
+    if(pMasqueradingVector.size() != 13)
     {
         LOG_ERROR << "Bad masquerading vector";
         return;
@@ -482,6 +509,14 @@ void Player::updateByMasqueradedJson(const Json::Value &pJson,
             xp_=std::make_shared<int32_t>((int32_t)pJson[pMasqueradingVector[11]].asInt64());
         }
     }
+    if(!pMasqueradingVector[12].empty() && pJson.isMember(pMasqueradingVector[12]))
+    {
+        dirtyFlag_[12] = true;
+        if(!pJson[pMasqueradingVector[12]].isNull())
+        {
+            load_=std::make_shared<int16_t>((int16_t)pJson[pMasqueradingVector[12]].asInt64());
+        }
+    }
 }
 
 void Player::updateByJson(const Json::Value &pJson) noexcept(false)
@@ -579,6 +614,14 @@ void Player::updateByJson(const Json::Value &pJson) noexcept(false)
         if(!pJson["Xp"].isNull())
         {
             xp_=std::make_shared<int32_t>((int32_t)pJson["Xp"].asInt64());
+        }
+    }
+    if(pJson.isMember("Load"))
+    {
+        dirtyFlag_[12] = true;
+        if(!pJson["Load"].isNull())
+        {
+            load_=std::make_shared<int16_t>((int16_t)pJson["Load"].asInt64());
         }
     }
 }
@@ -822,6 +865,23 @@ void Player::setXp(const int32_t &pXp) noexcept
     dirtyFlag_[11] = true;
 }
 
+const int16_t &Player::getValueOfLoad() const noexcept
+{
+    const static int16_t defaultValue = int16_t();
+    if(load_)
+        return *load_;
+    return defaultValue;
+}
+const std::shared_ptr<int16_t> &Player::getLoad() const noexcept
+{
+    return load_;
+}
+void Player::setLoad(const int16_t &pLoad) noexcept
+{
+    load_ = std::make_shared<int16_t>(pLoad);
+    dirtyFlag_[12] = true;
+}
+
 void Player::updateId(const uint64_t id)
 {
     id_ = std::make_shared<int32_t>(static_cast<int32_t>(id));
@@ -840,7 +900,8 @@ const std::vector<std::string> &Player::insertColumns() noexcept
         "Wis",
         "Cha",
         "RolledHp",
-        "Xp"
+        "Xp",
+        "Load"
     };
     return inCols;
 }
@@ -968,6 +1029,17 @@ void Player::outputArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
+    if(dirtyFlag_[12])
+    {
+        if(getLoad())
+        {
+            binder << getValueOfLoad();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
 }
 
 const std::vector<std::string> Player::updateColumns() const
@@ -1016,6 +1088,10 @@ const std::vector<std::string> Player::updateColumns() const
     if(dirtyFlag_[11])
     {
         ret.push_back(getColumnName(11));
+    }
+    if(dirtyFlag_[12])
+    {
+        ret.push_back(getColumnName(12));
     }
     return ret;
 }
@@ -1143,6 +1219,17 @@ void Player::updateArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
+    if(dirtyFlag_[12])
+    {
+        if(getLoad())
+        {
+            binder << getValueOfLoad();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
 }
 Json::Value Player::toJson() const
 {
@@ -1243,6 +1330,14 @@ Json::Value Player::toJson() const
     {
         ret["Xp"]=Json::Value();
     }
+    if(getLoad())
+    {
+        ret["Load"]=getValueOfLoad();
+    }
+    else
+    {
+        ret["Load"]=Json::Value();
+    }
     return ret;
 }
 
@@ -1250,7 +1345,7 @@ Json::Value Player::toMasqueradedJson(
     const std::vector<std::string> &pMasqueradingVector) const
 {
     Json::Value ret;
-    if(pMasqueradingVector.size() == 12)
+    if(pMasqueradingVector.size() == 13)
     {
         if(!pMasqueradingVector[0].empty())
         {
@@ -1384,6 +1479,17 @@ Json::Value Player::toMasqueradedJson(
                 ret[pMasqueradingVector[11]]=Json::Value();
             }
         }
+        if(!pMasqueradingVector[12].empty())
+        {
+            if(getLoad())
+            {
+                ret[pMasqueradingVector[12]]=getValueOfLoad();
+            }
+            else
+            {
+                ret[pMasqueradingVector[12]]=Json::Value();
+            }
+        }
         return ret;
     }
     LOG_ERROR << "Masquerade failed";
@@ -1483,6 +1589,14 @@ Json::Value Player::toMasqueradedJson(
     {
         ret["Xp"]=Json::Value();
     }
+    if(getLoad())
+    {
+        ret["Load"]=getValueOfLoad();
+    }
+    else
+    {
+        ret["Load"]=Json::Value();
+    }
     return ret;
 }
 
@@ -1548,13 +1662,23 @@ bool Player::validateJsonForCreation(const Json::Value &pJson, std::string &err)
         if(!validJsonOfField(11, "Xp", pJson["Xp"], err, true))
             return false;
     }
+    if(pJson.isMember("Load"))
+    {
+        if(!validJsonOfField(12, "Load", pJson["Load"], err, true))
+            return false;
+    }
+    else
+    {
+        err="The Load column cannot be null";
+        return false;
+    }
     return true;
 }
 bool Player::validateMasqueradedJsonForCreation(const Json::Value &pJson,
                                                 const std::vector<std::string> &pMasqueradingVector,
                                                 std::string &err)
 {
-    if(pMasqueradingVector.size() != 12)
+    if(pMasqueradingVector.size() != 13)
     {
         err = "Bad masquerading vector";
         return false;
@@ -1656,6 +1780,19 @@ bool Player::validateMasqueradedJsonForCreation(const Json::Value &pJson,
                   return false;
           }
       }
+      if(!pMasqueradingVector[12].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[12]))
+          {
+              if(!validJsonOfField(12, pMasqueradingVector[12], pJson[pMasqueradingVector[12]], err, true))
+                  return false;
+          }
+        else
+        {
+            err="The " + pMasqueradingVector[12] + " column cannot be null";
+            return false;
+        }
+      }
     }
     catch(const Json::LogicError &e)
     {
@@ -1731,13 +1868,18 @@ bool Player::validateJsonForUpdate(const Json::Value &pJson, std::string &err)
         if(!validJsonOfField(11, "Xp", pJson["Xp"], err, false))
             return false;
     }
+    if(pJson.isMember("Load"))
+    {
+        if(!validJsonOfField(12, "Load", pJson["Load"], err, false))
+            return false;
+    }
     return true;
 }
 bool Player::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
                                               const std::vector<std::string> &pMasqueradingVector,
                                               std::string &err)
 {
-    if(pMasqueradingVector.size() != 12)
+    if(pMasqueradingVector.size() != 13)
     {
         err = "Bad masquerading vector";
         return false;
@@ -1806,6 +1948,11 @@ bool Player::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
       if(!pMasqueradingVector[11].empty() && pJson.isMember(pMasqueradingVector[11]))
       {
           if(!validJsonOfField(11, pMasqueradingVector[11], pJson[pMasqueradingVector[11]], err, false))
+              return false;
+      }
+      if(!pMasqueradingVector[12].empty() && pJson.isMember(pMasqueradingVector[12]))
+      {
+          if(!validJsonOfField(12, pMasqueradingVector[12], pJson[pMasqueradingVector[12]], err, false))
               return false;
       }
     }
@@ -1986,6 +2133,18 @@ bool Player::validJsonOfField(size_t index,
             }
             break;
         case 11:
+            if(pJson.isNull())
+            {
+                err="The " + fieldName + " column cannot be null";
+                return false;
+            }
+            if(!pJson.isInt())
+            {
+                err="Type error in the "+fieldName+" field";
+                return false;
+            }
+            break;
+        case 12:
             if(pJson.isNull())
             {
                 err="The " + fieldName + " column cannot be null";
