@@ -6,20 +6,22 @@
     //host: server address,localhost by default;
     "host": "127.0.0.1",
     //port: server port, 5432 by default;
-    "port": 5432,
+    "port": 3306,
     //dbname: Database name;
     "dbname": "",
     //schema: valid for postgreSQL, "public" by default;
     "schema": "public",
     //user: User name
-    "user": "",
+    "user": "thomas",
     //password or passwd: Password
-    "password": "",
+    "password": "record",
     //client_encoding: The character set used by drogon_ctl. it is empty string by default which 
     //means use the default character set.
     //"client_encoding": "",
     //table: An array of tables to be modelized. if the array is empty, all revealed tables are modelized.
-    "tables": [],
+    "tables": [
+        "character", "item", "status", "event"
+    ],
     //convert: the value can be changed by a function call before it is stored into database or
     //after it is read from database
     "convert": {
@@ -40,14 +42,34 @@
     },
     "relationships": {
         "enabled": false,
-        "items": [{
+        "items": [
+            {
                 "type": "has one",
-                "original_table_name": "products",
-                "original_table_alias": "product",
-                "original_key": "id",
-                "target_table_name": "skus",
-                "target_table_alias": "SKU",
-                "target_key": "product_id",
+                "original_table_name": "item",
+                "original_table_alias": "item",
+                "original_key": "OwnerId",
+                "target_table_name": "character",
+                "target_table_alias": "character",
+                "target_key": "Id",
+                "enable_reverse": true
+            },
+            {
+                "type": "has one",
+                "original_table_name": "status",
+                "original_table_alias": "status",
+                "original_key": "CharacterId",
+                "target_table_name": "character",
+                "target_table_alias": "character",
+                "target_key": "Id",
+                "enable_reverse": true
+            },{
+                "type": "has one",
+                "original_table_name": "event",
+                "original_table_alias": "event",
+                "original_key": "CharacterId",
+                "target_table_name": "character",
+                "target_table_alias": "character",
+                "target_key": "Id",
                 "enable_reverse": true
             },
             {
