@@ -1,6 +1,6 @@
 {
     //rdbms: server type, postgresql,mysql or sqlite3
-    "rdbms": "postgresql",
+    "rdbms": "mysql",
     //filename: sqlite3 db file name
     //"filename":"",
     //host: server address,localhost by default;
@@ -8,7 +8,7 @@
     //port: server port, 5432 by default;
     "port": 3306,
     //dbname: Database name;
-    "dbname": "",
+    "dbname": "dnd",
     //schema: valid for postgreSQL, "public" by default;
     "schema": "public",
     //user: User name
@@ -20,7 +20,7 @@
     //"client_encoding": "",
     //table: An array of tables to be modelized. if the array is empty, all revealed tables are modelized.
     "tables": [
-        "character", "item", "status", "event"
+        "character", "item", "event", "spell", "effect"
     ],
     //convert: the value can be changed by a function call before it is stored into database or
     //after it is read from database
@@ -55,15 +55,6 @@
             },
             {
                 "type": "has one",
-                "original_table_name": "status",
-                "original_table_alias": "status",
-                "original_key": "CharacterId",
-                "target_table_name": "character",
-                "target_table_alias": "character",
-                "target_key": "Id",
-                "enable_reverse": true
-            },{
-                "type": "has one",
                 "original_table_name": "event",
                 "original_table_alias": "event",
                 "original_key": "CharacterId",
@@ -73,30 +64,60 @@
                 "enable_reverse": true
             },
             {
-                "type": "has many",
-                "original_table_name": "products",
-                "original_table_alias": "product",
-                "original_key": "id",
-                "target_table_name": "reviews",
-                "target_table_alias": "",
-                "target_key": "product_id",
+                "type": "has one",
+                "original_table_name": "event",
+                "original_table_alias": "event",
+                "original_key": "EffectId",
+                "target_table_name": "effect",
+                "target_table_alias": "effect",
+                "target_key": "Id",
                 "enable_reverse": true
             },
             {
-                "type": "many to many",
-                "original_table_name": "products",
-                "original_table_alias": "",
-                "original_key": "id",
-                "pivot_table": {
-                    "table_name": "carts_products",
-                    "original_key": "product_id",
-                    "target_key": "cart_id"
-                },
-                "target_table_name": "carts",
-                "target_table_alias": "",
-                "target_key": "id",
+                "type": "has one",
+                "original_table_name": "event",
+                "original_table_alias": "event",
+                "original_key": "SpellId",
+                "target_table_name": "spell",
+                "target_table_alias": "spell",
+                "target_key": "Id",
+                "enable_reverse": true
+            },
+            {
+                "type": "has one",
+                "original_table_name": "event",
+                "original_table_alias": "event",
+                "original_key": "ItemId",
+                "target_table_name": "item",
+                "target_table_alias": "item",
+                "target_key": "Id",
                 "enable_reverse": true
             }
+            // {
+            //     "type": "has many",
+            //     "original_table_name": "products",
+            //     "original_table_alias": "product",
+            //     "original_key": "id",
+            //     "target_table_name": "reviews",
+            //     "target_table_alias": "",
+            //     "target_key": "product_id",
+            //     "enable_reverse": true
+            // },
+            // {
+            //     "type": "many to many",
+            //     "original_table_name": "products",
+            //     "original_table_alias": "",
+            //     "original_key": "id",
+            //     "pivot_table": {
+            //         "table_name": "carts_products",
+            //         "original_key": "product_id",
+            //         "target_key": "cart_id"
+            //     },
+            //     "target_table_name": "carts",
+            //     "target_table_alias": "",
+            //     "target_key": "id",
+            //     "enable_reverse": true
+            // }
         ]
     },
     "restful_api_controllers": {
